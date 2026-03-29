@@ -75,6 +75,29 @@ font-size:8px;letter-spacing:1.5px;color:var(–muted);margin-top:6px}
 .pyth-dot{width:5px;height:5px;border-radius:50%;background:var(–up);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
+/* ODDS PANEL */
+.odds-panel{background:var(–card);border:1px solid var(–border);border-radius:12px;
+padding:12px 14px;margin-bottom:14px}
+.odds-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.odds-title{font-size:8px;letter-spacing:2px;color:var(–muted);text-transform:uppercase}
+.market-signal{font-size:9px;padding:3px 8px;border-radius:20px;font-weight:600;letter-spacing:0.5px}
+.signal-bull{background:rgba(0,229,160,0.12);color:var(–up);border:1px solid rgba(0,229,160,0.2)}
+.signal-bear{background:rgba(255,59,92,0.12);color:var(–dn);border:1px solid rgba(255,59,92,0.2)}
+.signal-neutral{background:rgba(255,255,255,0.05);color:var(–muted);border:1px solid var(–border)}
+.odds-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.odds-card{padding:10px;border-radius:8px;text-align:center;border:1px solid}
+.odds-card-up{border-color:rgba(0,229,160,0.2);background:rgba(0,229,160,0.04)}
+.odds-card-dn{border-color:rgba(255,59,92,0.2);background:rgba(255,59,92,0.04)}
+.odds-dir{font-size:8px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:4px}
+.odds-val{font-family:var(–display);font-size:22px;font-weight:900;transition:all .3s}
+.odds-val.up{color:var(–up)}.odds-val.dn{color:var(–dn)}
+.odds-payout{font-size:9px;color:var(–muted);margin-top:2px}
+.odds-meta{display:flex;justify-content:space-between;font-size:8px;color:var(–muted);
+padding-top:8px;border-top:1px solid var(–border)}
+.odds-meta-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.odds-meta-val{font-size:10px;font-weight:600;color:var(–text)}
+.odds-meta-val.pos{color:var(–up)}.odds-meta-val.neg{color:var(–dn)}
+
 .section-label{font-size:8px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:8px}
 
 .time-selector{margin-bottom:14px}
@@ -110,7 +133,6 @@ letter-spacing:1px;cursor:pointer;transition:all .2s}
 .bet-max:hover:not(:disabled){background:rgba(245,166,35,0.1)}
 .bet-max:disabled{opacity:.4;cursor:not-allowed}
 .bet-info{display:flex;justify-content:space-between;margin-top:8px;font-size:9px;color:var(–muted)}
-.potential-win{color:var(–up)}
 
 .timer-wrap{text-align:center;margin-bottom:14px}
 .timer-ring{position:relative;width:72px;height:72px;margin:0 auto 6px}
@@ -120,10 +142,10 @@ letter-spacing:1px;cursor:pointer;transition:all .2s}
 font-family:var(–display);font-size:18px;font-weight:900}
 .timer-label{font-size:9px;letter-spacing:2px;color:var(–muted)}
 
+/* PRED BUTTONS with embedded odds */
 .pred-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.pred-btn{padding:18px;border-radius:12px;border:2px solid;cursor:pointer;
-font-family:var(–display);font-size:20px;font-weight:900;letter-spacing:1px;
-transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;
+.pred-btn{padding:16px 12px;border-radius:12px;border:2px solid;cursor:pointer;
+transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;
 position:relative;overflow:hidden}
 .pred-btn::before{content:’’;position:absolute;inset:0;opacity:0;transition:opacity .2s}
 .pred-btn:hover::before{opacity:1}
@@ -136,7 +158,11 @@ position:relative;overflow:hidden}
 .pred-btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
 .pred-btn.selected-up{border-color:var(–up);background:rgba(0,229,160,.15);box-shadow:0 0 30px rgba(0,229,160,.2)}
 .pred-btn.selected-dn{border-color:var(–dn);background:rgba(255,59,92,.15);box-shadow:0 0 30px rgba(255,59,92,.2)}
-.pred-sub{font-size:9px;font-weight:400;font-family:var(–mono);color:inherit;opacity:.7;letter-spacing:1px}
+.pred-arrow{font-family:var(–display);font-size:22px;font-weight:900}
+.pred-dir{font-size:9px;font-family:var(–mono);opacity:.7;letter-spacing:1px}
+.pred-odds{font-family:var(–display);font-size:18px;font-weight:900;margin-top:2px;
+transition:all .3s;letter-spacing:-0.5px}
+.pred-win{font-size:8px;font-family:var(–mono);opacity:.8;margin-top:1px}
 
 .result-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
 background:rgba(0,0,0,.85);backdrop-filter:blur(12px)}
@@ -251,9 +277,44 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
     <div class="pyth-badge"><div class="pyth-dot"></div><span>POWERED BY PYTH NETWORK</span></div>
   </div>
 
+  <!-- LIVE ODDS PANEL -->
+
+  <div class="odds-panel">
+    <div class="odds-panel-head">
+      <div class="odds-title">Live Market Odds</div>
+      <div class="market-signal signal-neutral" id="marketSignal">NEUTRAL</div>
+    </div>
+    <div class="odds-row">
+      <div class="odds-card odds-card-up">
+        <div class="odds-dir">▲ UP</div>
+        <div class="odds-val up" id="oddsUpVal">1.95×</div>
+        <div class="odds-payout" id="oddsUpPayout">win $0.00</div>
+      </div>
+      <div class="odds-card odds-card-dn">
+        <div class="odds-dir">▼ DOWN</div>
+        <div class="odds-val dn" id="oddsDnVal">1.95×</div>
+        <div class="odds-payout" id="oddsDnPayout">win $0.00</div>
+      </div>
+    </div>
+    <div class="odds-meta">
+      <div class="odds-meta-item">
+        <span>MOMENTUM</span>
+        <span class="odds-meta-val" id="metaMomentum">—</span>
+      </div>
+      <div class="odds-meta-item">
+        <span>VOLATILITY</span>
+        <span class="odds-meta-val" id="metaVolatility">—</span>
+      </div>
+      <div class="odds-meta-item">
+        <span>TREND</span>
+        <span class="odds-meta-val" id="metaTrend">—</span>
+      </div>
+    </div>
+  </div>
+
   <!-- TIME SELECTOR -->
 
-  <div class="time-selector" id="timeSelectorWrap">
+  <div class="time-selector">
     <div class="section-label">Round Duration</div>
     <div class="time-btns">
       <button class="time-btn active" id="time120" onclick="setTime(120)"><span class="tv">2m</span>fast</button>
@@ -282,7 +343,6 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
     <div class="bet-info">
       <span>Min: $1</span>
       <span>Bet: <b id="betDisplay" style="color:var(--gold)">$0.00</b></span>
-      <span class="potential-win">Win: <b id="potentialWin">$0.00</b></span>
     </div>
   </div>
 
@@ -303,12 +363,20 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
 
   <div class="state-label" id="stateLabel">Set time · place bet · predict</div>
 
+  <!-- PRED BUTTONS — odds embedded -->
+
   <div class="pred-btns">
     <button class="pred-btn pred-up" id="btnUp" onclick="predict('up')">
-      ▲<span class="pred-sub">PRICE GOES UP</span>
+      <div class="pred-arrow">▲</div>
+      <div class="pred-dir">PRICE GOES UP</div>
+      <div class="pred-odds" id="btnUpOdds" style="color:var(--up)">1.95×</div>
+      <div class="pred-win" id="btnUpWin">win $0.00</div>
     </button>
     <button class="pred-btn pred-dn" id="btnDn" onclick="predict('down')">
-      ▼<span class="pred-sub">PRICE GOES DOWN</span>
+      <div class="pred-arrow">▼</div>
+      <div class="pred-dir">PRICE GOES DOWN</div>
+      <div class="pred-odds" id="btnDnOdds" style="color:var(--dn)">1.95×</div>
+      <div class="pred-win" id="btnDnWin">win $0.00</div>
     </button>
   </div>
 
@@ -348,7 +416,7 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
 </div>
 
 <script>
-var ASSETS = [
+var ASSETS=[
   {sym:'BTC',id:'0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',logo:'https://assets.coingecko.com/coins/images/1/small/bitcoin.png'},
   {sym:'ETH',id:'0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',logo:'https://assets.coingecko.com/coins/images/279/small/ethereum.png'},
   {sym:'SOL',id:'0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',logo:'https://assets.coingecko.com/coins/images/4128/small/solana.png'},
@@ -363,11 +431,98 @@ var currentAsset=ASSETS[0],currentPrice=0,prevPrice=0,priceHistory=[];
 var entryPrice=0,prediction=null,gameState='idle';
 var timerSecs=0,totalSecs=120,timerInterval=null,fetchInterval=null;
 var balance=1000,betAmount=0,selectedTime=120;
+var lockedUpOdds=1.95,lockedDnOdds=1.95;
 var streak=0,wins=0,streakHistory=[],roundHistory=[];
 
+// ═══ ODDS ENGINE ═══
+function calcOdds(){
+  if(priceHistory.length<5) return{upOdds:1.95,dnOdds:1.95,momentum:0,volatility:0,trend:'NEUTRAL'};
+
+  var n=Math.min(priceHistory.length,20);
+  var recent=priceHistory.slice(-n);
+
+  // Momentum: % change from start of window to now
+  var momentum=(recent[recent.length-1]-recent[0])/recent[0]*100;
+
+  // Volatility: average absolute % change between consecutive prices
+  var changes=[];
+  for(var i=1;i<recent.length;i++){
+    changes.push(Math.abs((recent[i]-recent[i-1])/recent[i-1]*100));
+  }
+  var avgVol=changes.reduce(function(a,b){return a+b;},0)/changes.length;
+
+  // Base: 1.95 both sides
+  // Momentum effect: trending up → UP is "likely" → lower UP odds, higher DN odds
+  // Volatility effect: more volatile → higher odds both sides (bigger risk/reward)
+  var BASE=1.95;
+  var momentumAdj=Math.min(Math.abs(momentum)*0.15,0.5); // max ±0.5 from momentum
+  var volAdj=Math.min(avgVol*0.3,0.6); // max +0.6 from volatility
+
+  var upOdds, dnOdds;
+  if(momentum>0.01){
+    // Bullish: UP is expected → lower UP odds, higher DN odds
+    upOdds=BASE-momentumAdj+volAdj;
+    dnOdds=BASE+momentumAdj+volAdj;
+  } else if(momentum<-0.01){
+    // Bearish: DOWN is expected → lower DN odds, higher UP odds
+    upOdds=BASE+momentumAdj+volAdj;
+    dnOdds=BASE-momentumAdj+volAdj;
+  } else {
+    upOdds=BASE+volAdj;
+    dnOdds=BASE+volAdj;
+  }
+
+  // Clamp odds between 1.10 and 4.50
+  upOdds=Math.max(1.10,Math.min(4.50,upOdds));
+  dnOdds=Math.max(1.10,Math.min(4.50,dnOdds));
+
+  var trend='NEUTRAL';
+  if(momentum>0.05) trend='BULLISH';
+  else if(momentum<-0.05) trend='BEARISH';
+
+  return{
+    upOdds:Math.round(upOdds*100)/100,
+    dnOdds:Math.round(dnOdds*100)/100,
+    momentum:momentum,
+    volatility:avgVol,
+    trend:trend
+  };
+}
+
+function updateOddsUI(){
+  if(gameState==='active') return; // freeze odds once bet is placed
+  var o=calcOdds();
+
+  // Odds panel
+  document.getElementById('oddsUpVal').textContent=o.upOdds.toFixed(2)+'×';
+  document.getElementById('oddsDnVal').textContent=o.dnOdds.toFixed(2)+'×';
+  var upWin=betAmount*o.upOdds,dnWin=betAmount*o.dnOdds;
+  document.getElementById('oddsUpPayout').textContent='win '+fmtMoney(upWin);
+  document.getElementById('oddsDnPayout').textContent='win '+fmtMoney(dnWin);
+
+  // Signal badge
+  var sigEl=document.getElementById('marketSignal');
+  sigEl.textContent=o.trend;
+  sigEl.className='market-signal '+(o.trend==='BULLISH'?'signal-bull':o.trend==='BEARISH'?'signal-bear':'signal-neutral');
+
+  // Meta stats
+  var momEl=document.getElementById('metaMomentum');
+  momEl.textContent=(o.momentum>=0?'+':'')+o.momentum.toFixed(3)+'%';
+  momEl.className='odds-meta-val '+(o.momentum>0?'pos':o.momentum<0?'neg':'');
+  document.getElementById('metaVolatility').textContent=o.volatility.toFixed(4)+'%';
+  document.getElementById('metaTrend').textContent=o.trend;
+
+  // Predict buttons
+  document.getElementById('btnUpOdds').textContent=o.upOdds.toFixed(2)+'×';
+  document.getElementById('btnDnOdds').textContent=o.dnOdds.toFixed(2)+'×';
+  document.getElementById('btnUpWin').textContent='win '+fmtMoney(upWin);
+  document.getElementById('btnDnWin').textContent='win '+fmtMoney(dnWin);
+}
+
+// ═══ ASSETS ═══
 function initAssetBar(){
   document.getElementById('assetBar').innerHTML=ASSETS.map(function(a){
-    return '<button class="asset-btn'+(a.sym===currentAsset.sym?' active':'')+'" onclick="selectAsset(\''+a.sym+'\')">'
+    return'<button class="asset-btn'+(a.sym===currentAsset.sym?' active':'')+'" onclick="selectAsset(\''+a.sym+'\')">'
       +'<img src="'+a.logo+'" onerror="this.style.display=\'none\'">'+a.sym+'</button>';
   }).join('');
 }
@@ -395,14 +550,14 @@ function quickBet(amt,btn){
   document.getElementById('betInput').value=betAmount;
   document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
-  updateBetInfo();
+  updateBetUI();
 }
 
 function onBetInput(){
   var val=parseFloat(document.getElementById('betInput').value)||0;
   betAmount=Math.min(Math.max(val,0),balance);
   document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
-  updateBetInfo();
+  updateBetUI();
 }
 
 function betMax(){
@@ -410,14 +565,15 @@ function betMax(){
   betAmount=balance;
   document.getElementById('betInput').value=betAmount.toFixed(2);
   document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
-  updateBetInfo();
+  updateBetUI();
 }
 
-function updateBetInfo(){
+function updateBetUI(){
   document.getElementById('betDisplay').textContent='$'+betAmount.toFixed(2);
-  document.getElementById('potentialWin').textContent='$'+(betAmount*1.95).toFixed(2);
+  updateOddsUI();
 }
 
+// ═══ PRICE ═══
 async function fetchPrice(){
   try{
     var r=await fetch('https://hermes.pyth.network/v2/updates/price/latest?ids[]='+currentAsset.id+'&parsed=true',
@@ -429,7 +585,7 @@ async function fetchPrice(){
     var p=item.price.price*Math.pow(10,item.price.expo);
     prevPrice=currentPrice||p;currentPrice=p;
     priceHistory.push(p);if(priceHistory.length>120)priceHistory.shift();
-    updatePriceDisplay();updateChart();
+    updatePriceDisplay();updateChart();updateOddsUI();
   }catch(e){}
 }
 
@@ -468,9 +624,8 @@ function updateChart(){
   }).join(' ');
   var fillPts=pts.split(' ')[0]+' '+pts+' '+W+','+H+' 0,'+H;
   var isUp=priceHistory[priceHistory.length-1]>=priceHistory[0];
-  var color=isUp?'var(--up)':'var(--dn)';
   document.getElementById('chartLine').setAttribute('points',pts);
-  document.getElementById('chartLine').setAttribute('stroke',color);
+  document.getElementById('chartLine').setAttribute('stroke',isUp?'var(--up)':'var(--dn)');
   document.getElementById('chartFill').setAttribute('d','M '+fillPts.split(' ').join(' L ')+' Z');
   document.querySelector('#chartGrad stop:first-child').setAttribute('stop-color',isUp?'#00e5a0':'#ff3b5c');
   if(gameState==='active'&&entryPrice){
@@ -489,6 +644,7 @@ function updateChart(){
   document.getElementById('chartLabelL').textContent=fmtPrice(mn);
 }
 
+// ═══ GAME ═══
 function predict(dir){
   if(gameState==='active'||!currentPrice)return;
   if(betAmount<1){
@@ -497,8 +653,15 @@ function predict(dir){
     document.getElementById('stateLabel').textContent='⚠ ENTER A BET AMOUNT FIRST';return;
   }
   if(betAmount>balance){document.getElementById('stateLabel').textContent='⚠ BET EXCEEDS BALANCE';return;}
+
+  // Lock in current odds
+  var o=calcOdds();
+  lockedUpOdds=o.upOdds;
+  lockedDnOdds=o.dnOdds;
+
   prediction=dir;entryPrice=currentPrice;gameState='active';totalSecs=selectedTime;
   balance-=betAmount;updateBalanceDisplay();
+
   document.getElementById('btnUp').classList.toggle('selected-up',dir==='up');
   document.getElementById('btnDn').classList.toggle('selected-dn',dir==='down');
   document.getElementById('btnUp').disabled=true;document.getElementById('btnDn').disabled=true;
@@ -538,20 +701,24 @@ function resolveRound(){
   var finalPrice=currentPrice;
   var won=prediction==='up'?finalPrice>entryPrice:finalPrice<entryPrice;
   var pct=Math.abs((finalPrice-entryPrice)/entryPrice*100);
+  var appliedOdds=prediction==='up'?lockedUpOdds:lockedDnOdds;
   var payout=0,balChange=0;
-  if(won){payout=betAmount*1.95;balance+=payout;balChange=payout-betAmount;streak++;wins++;streakHistory.push(true);}
+  if(won){payout=betAmount*appliedOdds;balance+=payout;balChange=payout-betAmount;streak++;wins++;streakHistory.push(true);}
   else{balChange=-betAmount;streak=0;streakHistory.push(false);}
   if(streakHistory.length>7)streakHistory.shift();
-  roundHistory.unshift({won,sym:currentAsset.sym,prediction,entry:entryPrice,final:finalPrice,pct,bet:betAmount,payout,balChange});
+  roundHistory.unshift({won,sym:currentAsset.sym,prediction,entry:entryPrice,final:finalPrice,
+    pct,bet:betAmount,payout,balChange,odds:appliedOdds});
   if(roundHistory.length>10)roundHistory.pop();
   updateBalanceDisplay(balChange);updateScoreDisplay();updateStreakBar();updateHistory();
-  showResult(won,finalPrice,pct,payout,balChange);gameState='result';
+  showResult(won,finalPrice,pct,payout,balChange,appliedOdds);gameState='result';
 }
 
-function showResult(won,finalPrice,pct,payout,balChange){
+function showResult(won,finalPrice,pct,payout,balChange,odds){
   var emoji=won?(streak>2?'🔥':'🎯'):(streak===0?'😤':'💔');
   var dir=finalPrice>=entryPrice?'▲':'▼';
-  var sub=currentAsset.sym+' went '+dir+' '+pct.toFixed(4)+'%\nEntry: '+fmtPrice(entryPrice)+'  →  '+fmtPrice(finalPrice);
+  var sub=currentAsset.sym+' went '+dir+' '+pct.toFixed(4)+'%\n'
+    +'Entry: '+fmtPrice(entryPrice)+'  →  '+fmtPrice(finalPrice)+'\n'
+    +'Odds locked: '+odds.toFixed(2)+'×';
   var payStr=won?'+'+fmtMoney(payout)+(streak>1?' 🔥 ×'+streak:''):'-'+fmtMoney(betAmount);
   document.getElementById('resultEmoji').textContent=emoji;
   document.getElementById('resultTitle').textContent=won?'CORRECT!':'WRONG!';
@@ -582,7 +749,7 @@ function resetState(){
   document.getElementById('stateLabel').textContent='Set time · place bet · predict';
   document.getElementById('timerNum').textContent='—';
   document.getElementById('timerCircle').style.strokeDashoffset='0';
-  updateBetInfo();
+  updateBetUI();
   var el=document.getElementById('entryLine');if(el)el.remove();
 }
 
@@ -616,7 +783,7 @@ function updateHistory(){
     var payStr=r.won?'+'+fmtMoney(r.payout):'-'+fmtMoney(r.bet);
     return'<div class="history-item">'
       +'<div class="hi-result '+(r.won?'hi-win':'hi-lose')+'">'+(r.won?'✓':'✗')+'</div>'
-      +'<div class="hi-info"><div class="hi-asset">'+r.sym+' — '+(r.prediction==='up'?'UP ▲':'DOWN ▼')+'</div>'
+      +'<div class="hi-info"><div class="hi-asset">'+r.sym+' — '+(r.prediction==='up'?'UP ▲':'DOWN ▼')+' @ '+r.odds.toFixed(2)+'×</div>'
       +'<div class="hi-detail">'+fmtPrice(r.entry)+' '+dir+' '+fmtPrice(r.final)+' ('+r.pct.toFixed(3)+'%)</div></div>'
       +'<div class="hi-right"><div class="hi-pts '+(r.won?'win':'lose')+'">'+payStr+'</div>'
       +'<div class="hi-bet">bet '+fmtMoney(r.bet)+'</div></div></div>';
@@ -625,7 +792,7 @@ function updateHistory(){
 
 function clearHistory(){roundHistory=[];updateHistory();}
 
-initAssetBar();updateBalanceDisplay();updateBetInfo();updateStreakBar();updateHistory();
+initAssetBar();updateBalanceDisplay();updateBetUI();updateStreakBar();updateHistory();
 fetchPrice();fetchInterval=setInterval(fetchPrice,3000);
 </script>
 
