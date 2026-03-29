@@ -259,20 +259,23 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
       <div class="market-icon">
         <img id="marketIcon" src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png">
       </div>
-      <div>
+      <div style="flex:1">
         <div class="market-title" id="marketTitle">BTC Up or Down</div>
-        <div class="market-sub" id="marketSub">2 Minute rounds</div>
+        <div class="market-sub" id="marketSub">2 min rounds</div>
       </div>
-      <div class="market-timer" style="margin-left:auto">
-        <div class="timer-block">
-          <div class="timer-big" id="timerMins" style="color:var(--blue)">00</div>
-          <div class="timer-unit">MINS</div>
-        </div>
-        <div class="timer-sep">:</div>
-        <div class="timer-block">
-          <div class="timer-big" id="timerSecs" style="color:var(--dn)">00</div>
-          <div class="timer-unit">SECS</div>
-        </div>
+    </div>
+    <!-- TIMER ROW — always visible -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;
+      padding:10px 0 4px;margin-bottom:8px;border-top:1px solid var(--border)">
+      <span style="font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-right:4px">TIME LEFT</span>
+      <div style="text-align:center">
+        <div style="font-family:var(--display);font-size:28px;font-weight:900;line-height:1" id="timerMins">00</div>
+        <div style="font-size:7px;letter-spacing:1.5px;color:var(--muted)">MINS</div>
+      </div>
+      <div style="font-family:var(--display);font-size:26px;font-weight:900;color:var(--muted);padding-bottom:8px">:</div>
+      <div style="text-align:center">
+        <div style="font-family:var(--display);font-size:28px;font-weight:900;line-height:1" id="timerSecs">00</div>
+        <div style="font-size:7px;letter-spacing:1.5px;color:var(--muted)">SECS</div>
       </div>
     </div>
 
@@ -430,6 +433,7 @@ var streak=0,wins=0,streakHistory=[],roundHistory=[];
 var roundDuration=120; // seconds
 var roundStartTime=0;  // epoch ms of current round start
 var roundOpenPrice=0;  // price at start of current window
+var roundOpenPriceLocked=false; // true once we have a real price for this round
 var userBet=null;      // {dir, amount, cents, entryPrice} or null
 var roundResolved=false;
 var clockInterval=null;
@@ -455,7 +459,6 @@ function checkRoundTick(){
 
   if(newStart!==roundStartTime){
     // New round has started!
-    var prevStart=roundStartTime;
     roundStartTime=newStart;
 
     // Resolve previous round if user had a bet
@@ -463,8 +466,9 @@ function checkRoundTick(){
       resolveRound();
     }
 
-    // Reset for new round
+    // Lock new round open price from current price
     roundOpenPrice=currentPrice||0;
+    roundOpenPriceLocked=currentPrice>0; // only lock if we have a real price
     roundResolved=false;
     userBet=null;
     unlockBetting();
@@ -569,7 +573,8 @@ async function fetchPrice(){
     var p=item.price.price*Math.pow(10,item.price.expo);
     prevPrice=currentPrice||p;currentPrice=p;
     priceHistory.push(p);if(priceHistory.length>120)priceHistory.shift();
-    if(!roundOpenPrice) roundOpenPrice=p;
+    // Only set round open price ONCE per round (first fetch after round starts)
+    if(!roundOpenPriceLocked){roundOpenPrice=p;roundOpenPriceLocked=true;updatePriceToBeat();}
     updateCurrentPriceEl();updateChart();updateOddsUI();
   }catch(e){}
 }
@@ -753,10 +758,10 @@ function setRoundDuration(secs){
   roundDuration=secs;
   document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('time'+secs).classList.add('active');
-  document.getElementById('marketSub').textContent=(secs/60)+' Minute rounds';
-  // Reset round to new boundary
+  document.getElementById('marketSub').textContent=(secs/60)+' min rounds';
   roundStartTime=getRoundStartTime();
   roundOpenPrice=currentPrice||0;
+  roundOpenPriceLocked=currentPrice>0;
   updatePriceToBeat();
 }
 
