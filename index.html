@@ -9,7 +9,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#04040a;--card:#0d0d16;--card2:#13131e;
+  --bg:#04040a;--card:#0d0d16;
   --border:rgba(255,255,255,0.07);
   --up:#00e5a0;--dn:#ff3b5c;--gold:#f5a623;--blue:#4f8fff;
   --text:#f0f0fa;--muted:#52526e;
@@ -52,7 +52,7 @@ font-family:var(–mono);font-size:10px;cursor:pointer;white-space:nowrap;transi
 
 .game-wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:16px}
 
-/* MARKET CARD — Polymarket style */
+/* MARKET CARD */
 .market-card{background:var(–card);border:1px solid var(–border);border-radius:16px;
 padding:16px;margin-bottom:14px;position:relative;overflow:hidden}
 .market-card::before{content:’’;position:absolute;inset:0;
@@ -65,18 +65,23 @@ background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-conten
 .market-title{font-family:var(–display);font-size:14px;font-weight:800;line-height:1.2}
 .market-sub{font-size:9px;color:var(–muted);margin-top:2px;letter-spacing:0.5px}
 
-.market-timer{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0}
+/* CLOCK TIMER */
+.market-timer{display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0}
 .timer-block{text-align:center}
-.timer-big{font-family:var(–display);font-size:22px;font-weight:900;line-height:1}
-.timer-big.red{color:var(–dn)}.timer-big.gold{color:var(–gold)}.timer-big.blue{color:var(–blue)}
-.timer-unit{font-size:7px;letter-spacing:2px;color:var(–muted);text-transform:uppercase}
-.timer-sep{font-family:var(–display);font-size:20px;font-weight:900;color:var(–muted);align-self:flex-start;padding-top:2px}
+.timer-big{font-family:var(–display);font-size:24px;font-weight:900;line-height:1;transition:color .3s}
+.timer-unit{font-size:7px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase}
+.timer-sep{font-family:var(–display);font-size:22px;font-weight:900;color:var(–muted);
+align-self:flex-start;padding-top:1px;margin:0 1px}
 
-/* PRICE TO BEAT */
+/* PROGRESS BAR */
+.round-progress{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:12px;overflow:hidden}
+.round-progress-fill{height:100%;border-radius:2px;transition:width .9s linear;background:var(–gold)}
+
+/* PRICE ROW */
 .price-row{display:flex;gap:10px;margin-bottom:12px}
 .price-col{flex:1;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(–border)}
 .price-col-label{font-size:8px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:4px}
-.price-col-val{font-family:var(–display);font-size:16px;font-weight:900}
+.price-col-val{font-family:var(–display);font-size:15px;font-weight:900}
 .price-col-val.gold{color:var(–gold)}
 .price-diff{font-size:10px;margin-top:2px}
 .price-diff.pos{color:var(–up)}.price-diff.neg{color:var(–dn)}
@@ -86,9 +91,16 @@ background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-conten
 .chart-wrap svg{width:100%;height:100%}
 .chart-label{display:flex;justify-content:space-between;font-size:8px;color:var(–muted);margin-bottom:4px}
 .pyth-badge{display:flex;align-items:center;gap:5px;justify-content:center;
-font-size:8px;letter-spacing:1.5px;color:var(–muted);margin-top:8px}
+font-size:8px;letter-spacing:1.5px;color:var(–muted);margin-top:6px}
 .pyth-dot{width:5px;height:5px;border-radius:50%;background:var(–up);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ROUND STATUS BANNER */
+.round-banner{padding:8px 12px;border-radius:8px;text-align:center;font-size:9px;
+letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;font-weight:600}
+.banner-open{background:rgba(79,143,255,0.1);border:1px solid rgba(79,143,255,0.2);color:var(–blue)}
+.banner-locked{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);color:var(–gold)}
+.banner-resolving{background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.2);color:var(–up)}
 
 /* TIME SELECTOR */
 .time-selector{margin-bottom:14px}
@@ -100,9 +112,9 @@ cursor:pointer;transition:all .2s;text-align:center;line-height:1.4}
 .time-btn .tv{font-family:var(–display);font-size:16px;font-weight:800;display:block}
 .time-btn.active{border-color:var(–blue);color:var(–blue);background:rgba(79,143,255,0.1)}
 .time-btn:hover:not(:disabled){border-color:rgba(255,255,255,.2);color:var(–text)}
-.time-btn:disabled{opacity:.4;cursor:not-allowed}
+.time-btn:disabled{opacity:.5;cursor:not-allowed}
 
-/* BET INPUT */
+/* BET */
 .bet-section{background:var(–card);border:1px solid var(–border);border-radius:12px;padding:14px;margin-bottom:14px}
 .bet-quick{display:flex;gap:6px;margin-bottom:10px}
 .bqb{flex:1;padding:8px 4px;border-radius:6px;border:1px solid var(–border);
@@ -125,37 +137,30 @@ background:transparent;color:var(–gold);font-family:var(–mono);font-size:9px
 letter-spacing:1px;cursor:pointer;transition:all .2s}
 .bet-max:hover:not(:disabled){background:rgba(245,166,35,0.1)}
 .bet-max:disabled{opacity:.4;cursor:not-allowed}
-
-/* WIN PREVIEW */
 .win-preview{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .win-box{padding:10px 12px;border-radius:8px;text-align:center}
 .win-box-up{background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.2)}
 .win-box-dn{background:rgba(255,59,92,0.07);border:1px solid rgba(255,59,92,0.2)}
 .win-box-label{font-size:7px;letter-spacing:2px;color:var(–muted);text-transform:uppercase;margin-bottom:4px}
 .win-box-amt{font-family:var(–display);font-size:17px;font-weight:900}
-.win-box-up .win-box-amt{color:var(–up)}
-.win-box-dn .win-box-amt{color:var(–dn)}
+.win-box-up .win-box-amt{color:var(–up)}.win-box-dn .win-box-amt{color:var(–dn)}
 .win-box-note{font-size:8px;color:var(–muted);margin-top:2px}
 
-/* POLYMARKET-STYLE BUY BUTTONS */
+/* BUY BUTTONS */
 .buy-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .buy-btn{padding:18px 12px;border-radius:12px;border:none;cursor:pointer;
 font-family:var(–display);font-weight:900;letter-spacing:0.5px;
-transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;
-position:relative;overflow:hidden}
-.buy-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;filter:grayscale(0.3)}
+transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px}
+.buy-btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;filter:grayscale(0.4)}
 .buy-up-btn{background:linear-gradient(135deg,#00c87a,#00e5a0);color:#001a0f}
 .buy-up-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,229,160,.35)}
-.buy-up-btn.selected{box-shadow:0 0 0 3px rgba(0,229,160,.5),0 10px 36px rgba(0,229,160,.3)}
-.buy-dn-btn{background:linear-gradient(135deg,#cc1f3e,#ff3b5c);color:#1a0008}
+.buy-up-btn.selected{box-shadow:0 0 0 3px rgba(0,229,160,.5),0 10px 36px rgba(0,229,160,.3);transform:translateY(-1px)}
+.buy-dn-btn{background:linear-gradient(135deg,#cc1f3e,#ff3b5c);color:#fff}
 .buy-dn-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 36px rgba(255,59,92,.35)}
-.buy-dn-btn.selected{box-shadow:0 0 0 3px rgba(255,59,92,.5),0 10px 36px rgba(255,59,92,.3)}
+.buy-dn-btn.selected{box-shadow:0 0 0 3px rgba(255,59,92,.5),0 10px 36px rgba(255,59,92,.3);transform:translateY(-1px)}
 .buy-btn-dir{font-size:11px;letter-spacing:2px;opacity:0.8}
-.buy-btn-cents{font-size:32px;line-height:1}
+.buy-btn-cents{font-size:30px;line-height:1}
 .buy-btn-label{font-size:9px;opacity:0.7;letter-spacing:0.5px}
-
-.state-label{text-align:center;font-size:9px;letter-spacing:3px;color:var(–muted);
-text-transform:uppercase;margin-bottom:12px}
 
 /* STREAK */
 .streak-bar{display:flex;justify-content:center;gap:4px;margin-bottom:14px}
@@ -203,7 +208,6 @@ color:white;font-family:var(–display);font-size:13px;font-weight:800;
 letter-spacing:2px;cursor:pointer;transition:all .2s}
 .play-again:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,143,255,.4)}
 
-/* BUST */
 .bust-overlay{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;
 background:rgba(0,0,0,.92);backdrop-filter:blur(16px)}
 .bust-overlay.show{display:flex}
@@ -257,39 +261,40 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
       </div>
       <div>
         <div class="market-title" id="marketTitle">BTC Up or Down</div>
-        <div class="market-sub" id="marketSub">Predict the next move</div>
+        <div class="market-sub" id="marketSub">2 Minute rounds</div>
       </div>
-      <!-- TIMER (Polymarket style) -->
-      <div class="market-timer" id="timerWrap" style="visibility:hidden">
+      <div class="market-timer" style="margin-left:auto">
         <div class="timer-block">
-          <div class="timer-big" id="timerMins">00</div>
+          <div class="timer-big" id="timerMins" style="color:var(--blue)">00</div>
           <div class="timer-unit">MINS</div>
         </div>
         <div class="timer-sep">:</div>
         <div class="timer-block">
-          <div class="timer-big red" id="timerSecs">00</div>
+          <div class="timer-big" id="timerSecs" style="color:var(--dn)">00</div>
           <div class="timer-unit">SECS</div>
         </div>
       </div>
     </div>
 
 ```
-<!-- PRICE TO BEAT (shows when active) -->
+<!-- PROGRESS BAR -->
+<div class="round-progress"><div class="round-progress-fill" id="progressFill" style="width:100%"></div></div>
+
+<!-- PRICE ROW -->
 <div class="price-row">
   <div class="price-col">
     <div class="price-col-label">Price to beat</div>
-    <div class="price-col-val" id="priceToBeat">—</div>
+    <div class="price-col-val" id="priceToBeat">Loading...</div>
   </div>
   <div class="price-col">
     <div class="price-col-label">Current price</div>
-    <div style="display:flex;align-items:baseline;gap:6px">
-      <div class="price-col-val gold" id="currentPrice">$—</div>
+    <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
+      <div class="price-col-val gold" id="currentPriceEl">$—</div>
       <div class="price-diff" id="priceDiff"></div>
     </div>
   </div>
 </div>
 
-<!-- CHART -->
 <div class="chart-wrap">
   <svg id="chartSvg" viewBox="0 0 300 80" preserveAspectRatio="none">
     <defs>
@@ -308,18 +313,22 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
 
   </div>
 
+  <!-- ROUND STATUS BANNER -->
+
+  <div class="round-banner banner-open" id="roundBanner">🟢 ROUND OPEN — Place your bet now</div>
+
   <!-- TIME SELECTOR -->
 
   <div class="time-selector" id="timeSelectorWrap">
     <div class="section-label">Round Duration</div>
     <div class="time-btns">
-      <button class="time-btn active" id="time120" onclick="setTime(120)"><span class="tv">2m</span>fast</button>
-      <button class="time-btn" id="time240" onclick="setTime(240)"><span class="tv">4m</span>balanced</button>
-      <button class="time-btn" id="time600" onclick="setTime(600)"><span class="tv">10m</span>slow burn</button>
+      <button class="time-btn active" id="time120" onclick="setRoundDuration(120)"><span class="tv">2m</span>fast</button>
+      <button class="time-btn" id="time240" onclick="setRoundDuration(240)"><span class="tv">4m</span>balanced</button>
+      <button class="time-btn" id="time600" onclick="setRoundDuration(600)"><span class="tv">10m</span>slow burn</button>
     </div>
   </div>
 
-  <!-- BET INPUT -->
+  <!-- BET -->
 
   <div class="bet-section">
     <div class="section-label">Place Your Bet</div>
@@ -336,47 +345,37 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
       </div>
       <button class="bet-max" id="betMax" onclick="betMax()">MAX</button>
     </div>
-
-```
-<!-- WIN PREVIEW — Polymarket style -->
-<div class="win-preview">
-  <div class="win-box win-box-up">
-    <div class="win-box-label">▲ If UP wins</div>
-    <div class="win-box-amt" id="previewUpWin">$0.00</div>
-    <div class="win-box-note" id="previewUpNote">@ <span id="upCentsPreview">—</span>¢</div>
-  </div>
-  <div class="win-box win-box-dn">
-    <div class="win-box-label">▼ If DOWN wins</div>
-    <div class="win-box-amt" id="previewDnWin">$0.00</div>
-    <div class="win-box-note" id="previewDnNote">@ <span id="dnCentsPreview">—</span>¢</div>
-  </div>
-</div>
-```
-
+    <div class="win-preview">
+      <div class="win-box win-box-up">
+        <div class="win-box-label">▲ If UP wins</div>
+        <div class="win-box-amt" id="previewUpWin">$0.00</div>
+        <div class="win-box-note">@ <span id="upCentsEl">50</span>¢</div>
+      </div>
+      <div class="win-box win-box-dn">
+        <div class="win-box-label">▼ If DOWN wins</div>
+        <div class="win-box-amt" id="previewDnWin">$0.00</div>
+        <div class="win-box-note">@ <span id="dnCentsEl">50</span>¢</div>
+      </div>
+    </div>
   </div>
 
-  <div class="state-label" id="stateLabel">Set time · place bet · predict</div>
-
-  <!-- POLYMARKET-STYLE BUY BUTTONS -->
+  <!-- BUY BUTTONS -->
 
   <div class="buy-btns">
-    <button class="buy-btn buy-up-btn" id="btnUp" onclick="predict('up')">
+    <button class="buy-btn buy-up-btn" id="btnUp" onclick="placeBet('up')">
       <div class="buy-btn-dir">BUY UP</div>
-      <div class="buy-btn-cents" id="btnUpCents">—¢</div>
+      <div class="buy-btn-cents" id="btnUpCents">50¢</div>
       <div class="buy-btn-label">price goes higher</div>
     </button>
-    <button class="buy-btn buy-dn-btn" id="btnDn" onclick="predict('down')">
+    <button class="buy-btn buy-dn-btn" id="btnDn" onclick="placeBet('down')">
       <div class="buy-btn-dir">BUY DOWN</div>
-      <div class="buy-btn-cents" id="btnDnCents">—¢</div>
+      <div class="buy-btn-cents" id="btnDnCents">50¢</div>
       <div class="buy-btn-label">price goes lower</div>
     </button>
   </div>
 
-  <!-- HISTORY -->
-
   <div class="history-wrap">
-    <div class="history-head">
-      ROUND HISTORY
+    <div class="history-head">ROUND HISTORY
       <button class="history-clear" onclick="clearHistory()">CLEAR</button>
     </div>
     <div id="historyList"><div class="empty-hist">No rounds yet.<br>Place a bet and predict!</div></div>
@@ -392,7 +391,7 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
     <div class="result-sub" id="resultSub">—</div>
     <div class="result-payout" id="resultPayout">—</div>
     <div class="result-balance" id="resultBalance">—</div>
-    <button class="play-again" onclick="newRound()">PLAY AGAIN →</button>
+    <button class="play-again" onclick="closeResult()">NEXT ROUND →</button>
   </div>
 </div>
 
@@ -421,126 +420,144 @@ var ASSETS=[
   {sym:'XRP', id:'0xec5d399846a9209f3fe5881d70aae9268c94339ff9817e8d18ff19fa05eea1c8',logo:'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png'},
 ];
 
-var currentAsset=ASSETS[0],currentPrice=0,prevPrice=0,priceHistory=[];
-var entryPrice=0,prediction=null,gameState='idle';
-var timerSecs=0,totalSecs=120,timerInterval=null,fetchInterval=null;
-var balance=1000,betAmount=0,selectedTime=120;
-var lockedUpCents=50,lockedDnCents=50;
+// ═══ STATE ═══
+var currentAsset=ASSETS[0];
+var currentPrice=0,prevPrice=0,priceHistory=[];
+var balance=1000,betAmount=0;
 var streak=0,wins=0,streakHistory=[],roundHistory=[];
 
-// ═══ ODDS ENGINE → returns cents (0-100) ═══
+// Round clock state
+var roundDuration=120; // seconds
+var roundStartTime=0;  // epoch ms of current round start
+var roundOpenPrice=0;  // price at start of current window
+var userBet=null;      // {dir, amount, cents, entryPrice} or null
+var roundResolved=false;
+var clockInterval=null;
+var fetchInterval=null;
+
+// ═══ CLOCK-BASED ROUND ENGINE ═══
+// Rounds are aligned to real clock: epoch divided by roundDuration
+function getRoundStartTime(){
+  var now=Date.now();
+  var durationMs=roundDuration*1000;
+  return Math.floor(now/durationMs)*durationMs;
+}
+
+function getSecsLeft(){
+  var now=Date.now();
+  var durationMs=roundDuration*1000;
+  var elapsed=now-getRoundStartTime();
+  return Math.max(0, Math.ceil((durationMs-elapsed)/1000));
+}
+
+function checkRoundTick(){
+  var newStart=getRoundStartTime();
+
+  if(newStart!==roundStartTime){
+    // New round has started!
+    var prevStart=roundStartTime;
+    roundStartTime=newStart;
+
+    // Resolve previous round if user had a bet
+    if(userBet&&!roundResolved){
+      resolveRound();
+    }
+
+    // Reset for new round
+    roundOpenPrice=currentPrice||0;
+    roundResolved=false;
+    userBet=null;
+    unlockBetting();
+    updateBanner('open');
+    updatePriceToBeat();
+  }
+
+  var secsLeft=getSecsLeft();
+  updateTimerDisplay(secsLeft);
+  updateProgressBar(secsLeft);
+
+  // Lock betting in last 10 seconds of round
+  if(secsLeft<=10&&secsLeft>0&&!userBet){
+    updateBanner('locking');
+    lockBettingUI(true);
+  }
+}
+
+function updateTimerDisplay(secsLeft){
+  var m=Math.floor(secsLeft/60),s=secsLeft%60;
+  document.getElementById('timerMins').textContent=String(m).padStart(2,'0');
+  var secEl=document.getElementById('timerSecs');
+  secEl.textContent=String(s).padStart(2,'0');
+  // Color based on urgency
+  var mEl=document.getElementById('timerMins');
+  if(secsLeft<=10){secEl.style.color='var(--dn)';mEl.style.color='var(--dn)';}
+  else if(secsLeft<=30){secEl.style.color='var(--gold)';mEl.style.color='var(--gold)';}
+  else{secEl.style.color='var(--dn)';mEl.style.color='var(--blue)';}
+}
+
+function updateProgressBar(secsLeft){
+  var pct=(secsLeft/roundDuration)*100;
+  var fill=document.getElementById('progressFill');
+  fill.style.width=pct+'%';
+  fill.style.background=secsLeft<=10?'var(--dn)':secsLeft<=30?'var(--gold)':'var(--gold)';
+}
+
+function updateBanner(state){
+  var el=document.getElementById('roundBanner');
+  if(state==='open'){
+    el.textContent='🟢 ROUND OPEN — Place your bet now';
+    el.className='round-banner banner-open';
+  } else if(state==='locking'){
+    el.textContent='🔒 CLOSING SOON — Last chance to bet!';
+    el.className='round-banner banner-locked';
+  } else if(state==='bet'){
+    var dir=userBet.dir==='up'?'UP ▲':'DOWN ▼';
+    el.textContent='📌 BET PLACED — '+dir+' @ '+userBet.cents+'¢';
+    el.className='round-banner banner-locked';
+  } else if(state==='resolving'){
+    el.textContent='⏳ ROUND ENDED — Resolving...';
+    el.className='round-banner banner-resolving';
+  }
+}
+
+// ═══ ODDS ENGINE ═══
 function calcOdds(){
-  if(priceHistory.length<5) return{upCents:50,dnCents:50,momentum:0,volatility:0};
+  if(priceHistory.length<5) return{upCents:50,dnCents:50};
   var n=Math.min(priceHistory.length,20);
   var recent=priceHistory.slice(-n);
   var momentum=(recent[recent.length-1]-recent[0])/recent[0]*100;
   var changes=[];
   for(var i=1;i<recent.length;i++) changes.push(Math.abs((recent[i]-recent[i-1])/recent[i-1]*100));
   var avgVol=changes.reduce(function(a,b){return a+b;},0)/changes.length;
-
-  // Base probability: 50/50
-  // Momentum shifts probability (trending up → UP more likely → higher UP cents)
-  // Volatility widens the spread further
-  var momentumShift=Math.min(Math.abs(momentum)*8,30); // max 30¢ shift
-  var volShift=Math.min(avgVol*2,10); // up to 10¢ extra from vol
+  var momentumShift=Math.min(Math.abs(momentum)*8,30);
+  var volShift=Math.min(avgVol*2,10);
   var totalShift=momentumShift+volShift;
-
-  var upProb, dnProb;
-  if(momentum>0.01){upProb=50+totalShift;dnProb=50-totalShift;}
-  else if(momentum<-0.01){upProb=50-totalShift;dnProb=50+totalShift;}
-  else{upProb=50;dnProb=50;}
-
-  // House edge: total = 96¢ (4¢ house cut), scale proportionally
+  var upProb=momentum>0.01?50+totalShift:momentum<-0.01?50-totalShift:50;
+  var dnProb=100-upProb;
   var total=upProb+dnProb;
   upProb=Math.round(upProb/total*96);
   dnProb=96-upProb;
-
-  // Clamp: 5¢ min, 91¢ max
   upProb=Math.max(5,Math.min(91,upProb));
   dnProb=Math.max(5,Math.min(91,dnProb));
-
-  return{upCents:upProb,dnCents:dnProb,momentum:momentum,volatility:avgVol};
+  return{upCents:upProb,dnCents:dnProb};
 }
 
-// Payout for polymarket style: bet / (cents/100) = total return
-function calcPayout(bet, cents){ return bet/(cents/100); }
+function calcPayout(bet,cents){return bet/(cents/100);}
 
 function updateOddsUI(){
-  if(gameState==='active') return;
+  if(userBet) return;
   var o=calcOdds();
-
-  // Button cents
   document.getElementById('btnUpCents').textContent=o.upCents+'¢';
   document.getElementById('btnDnCents').textContent=o.dnCents+'¢';
-
-  // Win preview
-  var upWin=calcPayout(betAmount,o.upCents);
-  var dnWin=calcPayout(betAmount,o.dnCents);
-  document.getElementById('previewUpWin').textContent=fmtMoney(betAmount>0?upWin:0);
-  document.getElementById('previewDnWin').textContent=fmtMoney(betAmount>0?dnWin:0);
-  document.getElementById('upCentsPreview').textContent=o.upCents;
-  document.getElementById('dnCentsPreview').textContent=o.dnCents;
+  document.getElementById('upCentsEl').textContent=o.upCents;
+  document.getElementById('dnCentsEl').textContent=o.dnCents;
+  var upWin=betAmount>0?calcPayout(betAmount,o.upCents):0;
+  var dnWin=betAmount>0?calcPayout(betAmount,o.dnCents):0;
+  document.getElementById('previewUpWin').textContent=fmtMoney(upWin);
+  document.getElementById('previewDnWin').textContent=fmtMoney(dnWin);
 }
 
-function initAssetBar(){
-  document.getElementById('assetBar').innerHTML=ASSETS.map(function(a){
-    return'<button class="asset-btn'+(a.sym===currentAsset.sym?' active':'')+'" onclick="selectAsset(\''+a.sym+'\')">'
-      +'<img src="'+a.logo+'" onerror="this.style.display=\'none\'">'+a.sym+'</button>';
-  }).join('');
-}
-
-function selectAsset(sym){
-  if(gameState==='active')return;
-  currentAsset=ASSETS.find(function(a){return a.sym===sym;});
-  priceHistory=[];currentPrice=0;
-  var asset=currentAsset;
-  document.getElementById('marketTitle').textContent=sym+' Up or Down';
-  document.getElementById('marketSub').textContent='Predict the next move';
-  document.getElementById('marketIcon').src=asset.logo;
-  document.querySelectorAll('.asset-btn').forEach(function(b){b.classList.remove('active');});
-  event.target.closest('.asset-btn').classList.add('active');
-  fetchPrice();resetState();
-}
-
-function setTime(secs){
-  if(gameState==='active')return;
-  selectedTime=secs;
-  document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('active');});
-  document.getElementById('time'+secs).classList.add('active');
-  document.getElementById('marketSub').textContent=fmtTimeLong(secs)+' round';
-}
-
-function fmtTimeLong(s){return s>=60?Math.floor(s/60)+' min':s+' sec';}
-
-function quickBet(amt,btn){
-  if(gameState==='active')return;
-  betAmount=Math.min(amt,balance);
-  document.getElementById('betInput').value=betAmount;
-  document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
-  updateBetUI();
-}
-
-function onBetInput(){
-  var val=parseFloat(document.getElementById('betInput').value)||0;
-  betAmount=Math.min(Math.max(val,0),balance);
-  document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
-  updateBetUI();
-}
-
-function betMax(){
-  if(gameState==='active')return;
-  betAmount=balance;
-  document.getElementById('betInput').value=betAmount.toFixed(2);
-  document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
-  updateBetUI();
-}
-
-function updateBetUI(){
-  document.getElementById('betInput').value=betAmount||'';
-  updateOddsUI();
-}
-
+// ═══ PRICE FETCH ═══
 async function fetchPrice(){
   try{
     var r=await fetch('https://hermes.pyth.network/v2/updates/price/latest?ids[]='+currentAsset.id+'&parsed=true',
@@ -552,39 +569,38 @@ async function fetchPrice(){
     var p=item.price.price*Math.pow(10,item.price.expo);
     prevPrice=currentPrice||p;currentPrice=p;
     priceHistory.push(p);if(priceHistory.length>120)priceHistory.shift();
-    updatePriceDisplay();updateChart();updateOddsUI();
+    if(!roundOpenPrice) roundOpenPrice=p;
+    updateCurrentPriceEl();updateChart();updateOddsUI();
   }catch(e){}
 }
 
 function fmtPrice(p){
+  if(!p||isNaN(p))return'—';
   if(p>=10000)return'$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   if(p>=100)return'$'+p.toFixed(2);if(p>=1)return'$'+p.toFixed(4);return'$'+p.toFixed(5);
 }
 function fmtMoney(b){return'$'+Math.abs(b).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 
-function updatePriceDisplay(){
-  var el=document.getElementById('currentPrice');
-  el.textContent=fmtPrice(currentPrice);
-
-  // Price to beat shows entry if active, else current
-  if(gameState==='active'&&entryPrice){
-    document.getElementById('priceToBeat').textContent=fmtPrice(entryPrice);
-    var diff=currentPrice-entryPrice;
-    var diffEl=document.getElementById('priceDiff');
-    diffEl.textContent=(diff>=0?'▲ +':' ▼ ')+fmtPrice(Math.abs(diff));
-    diffEl.className='price-diff '+(diff>=0?'pos':'neg');
-  } else {
-    document.getElementById('priceToBeat').textContent=currentPrice?fmtPrice(currentPrice):'—';
-    document.getElementById('priceDiff').textContent='';
-  }
+function updateCurrentPriceEl(){
+  document.getElementById('currentPriceEl').textContent=fmtPrice(currentPrice);
+  updatePriceDiff();
 }
 
-function updateBalanceDisplay(change){
-  document.getElementById('balanceAmt').textContent=fmtMoney(balance);
-  var chEl=document.getElementById('balanceChange');
-  if(change===undefined){chEl.textContent='';return;}
-  chEl.textContent=(change>=0?'+':'-')+fmtMoney(Math.abs(change));
-  chEl.className='balance-change '+(change>=0?'pos':'neg');
+function updatePriceToBeat(){
+  document.getElementById('priceToBeat').textContent=roundOpenPrice?fmtPrice(roundOpenPrice):'Waiting...';
+  updatePriceDiff();
+}
+
+function updatePriceDiff(){
+  if(!roundOpenPrice||!currentPrice){document.getElementById('priceDiff').textContent='';return;}
+  var diff=currentPrice-roundOpenPrice;
+  var el=document.getElementById('priceDiff');
+  el.textContent=(diff>=0?'▲ +':'▼ ')+fmtPrice(Math.abs(diff));
+  el.className='price-diff '+(diff>=0?'pos':'neg');
+  // Chart color follows direction vs open
+  var color=currentPrice>=roundOpenPrice?'#00e5a0':'#ff3b5c';
+  document.getElementById('chartLine').setAttribute('stroke',color);
+  document.querySelector('#chartGrad stop:first-child').setAttribute('stop-color',color);
 }
 
 function updateChart(){
@@ -595,21 +611,19 @@ function updateChart(){
     return((i/(priceHistory.length-1))*W).toFixed(1)+','+(H-((v-mn)/range)*(H-8)-4).toFixed(1);
   }).join(' ');
   var fillPts=pts.split(' ')[0]+' '+pts+' '+W+','+H+' 0,'+H;
-
-  // Gold color like Polymarket when no entry, green/red when active
-  var color=gameState==='active'?(currentPrice>=entryPrice?'#00e5a0':'#ff3b5c'):'#f5a623';
   document.getElementById('chartLine').setAttribute('points',pts);
-  document.getElementById('chartLine').setAttribute('stroke',color);
   document.getElementById('chartFill').setAttribute('d','M '+fillPts.split(' ').join(' L ')+' Z');
-  document.querySelector('#chartGrad stop:first-child').setAttribute('stop-color',color);
 
-  if(gameState==='active'&&entryPrice){
-    var entryY=H-((entryPrice-mn)/range)*(H-8)-4;
+  // Entry line
+  if(roundOpenPrice){
+    var entryY=H-((roundOpenPrice-mn)/range)*(H-8)-4;
     var el=document.getElementById('entryLine');
     if(!el){
       var line=document.createElementNS('http://www.w3.org/2000/svg','line');
-      line.id='entryLine';line.setAttribute('stroke','rgba(245,166,35,0.7)');
-      line.setAttribute('stroke-width','1.5');line.setAttribute('stroke-dasharray','5,3');
+      line.id='entryLine';
+      line.setAttribute('stroke','rgba(245,166,35,0.6)');
+      line.setAttribute('stroke-width','1.5');
+      line.setAttribute('stroke-dasharray','5,3');
       document.getElementById('chartSvg').insertBefore(line,document.getElementById('chartLine'));
       el=line;
     }
@@ -619,83 +633,105 @@ function updateChart(){
   document.getElementById('chartLabelL').textContent=fmtPrice(mn);
 }
 
-function predict(dir){
-  if(gameState==='active'||!currentPrice)return;
+// ═══ BETTING ═══
+function placeBet(dir){
+  if(userBet){return;}
+  if(getSecsLeft()<=10){
+    setBannerMsg('⛔ Too late — wait for next round');return;
+  }
   if(betAmount<1){
     document.getElementById('betInput').style.borderColor='var(--dn)';
     setTimeout(function(){document.getElementById('betInput').style.borderColor='';},1000);
-    document.getElementById('stateLabel').textContent='⚠ ENTER A BET AMOUNT FIRST';return;
+    setBannerMsg('⚠ ENTER A BET AMOUNT FIRST');return;
   }
-  if(betAmount>balance){document.getElementById('stateLabel').textContent='⚠ BET EXCEEDS BALANCE';return;}
+  if(betAmount>balance){setBannerMsg('⚠ BET EXCEEDS BALANCE');return;}
 
   var o=calcOdds();
-  lockedUpCents=o.upCents;lockedDnCents=o.dnCents;
+  var cents=dir==='up'?o.upCents:o.dnCents;
 
-  prediction=dir;entryPrice=currentPrice;gameState='active';totalSecs=selectedTime;
-  balance-=betAmount;updateBalanceDisplay();
+  userBet={dir:dir,amount:betAmount,cents:cents,entryPrice:currentPrice};
+  balance-=betAmount;
+  updateBalanceDisplay();
 
+  // Lock UI
   document.getElementById('btnUp').classList.toggle('selected',dir==='up');
   document.getElementById('btnDn').classList.toggle('selected',dir==='down');
-  document.getElementById('btnUp').disabled=true;document.getElementById('btnDn').disabled=true;
-  document.getElementById('betInput').disabled=true;document.getElementById('betMax').disabled=true;
-  document.querySelectorAll('.bqb').forEach(function(b){b.disabled=true;});
+  lockBettingUI(true);
   document.querySelectorAll('.time-btn').forEach(function(b){b.disabled=true;});
   document.getElementById('timeSelectorWrap').style.opacity='0.4';
-  document.getElementById('timerWrap').style.visibility='visible';
 
-  var lockedCents=dir==='up'?lockedUpCents:lockedDnCents;
-  document.getElementById('stateLabel').textContent=dir==='up'
-    ?'📈 Bought UP @ '+lockedUpCents+'¢ — waiting...'
-    :'📉 Bought DOWN @ '+lockedDnCents+'¢ — waiting...';
-
-  updatePriceDisplay();
-  startTimer();
+  updateBanner('bet');
 }
 
-function startTimer(){
-  timerSecs=totalSecs;updateTimerDisplay();
-  timerInterval=setInterval(function(){
-    timerSecs--;updateTimerDisplay();
-    if(timerSecs<=0){clearInterval(timerInterval);resolveRound();}
-  },1000);
+function lockBettingUI(lock){
+  document.getElementById('btnUp').disabled=lock&&!userBet?true:!!userBet;
+  document.getElementById('btnDn').disabled=lock&&!userBet?true:!!userBet;
+  document.getElementById('betInput').disabled=!!userBet;
+  document.getElementById('betMax').disabled=!!userBet;
+  document.querySelectorAll('.bqb').forEach(function(b){b.disabled=!!userBet;});
 }
 
-function updateTimerDisplay(){
-  var m=Math.floor(timerSecs/60),s=timerSecs%60;
-  document.getElementById('timerMins').textContent=String(m).padStart(2,'0');
-  var secEl=document.getElementById('timerSecs');
-  secEl.textContent=String(s).padStart(2,'0');
-  secEl.className='timer-big '+(timerSecs<=30?'red':timerSecs<=60?'gold':'blue');
+function unlockBetting(){
+  document.getElementById('btnUp').disabled=false;
+  document.getElementById('btnDn').disabled=false;
+  document.getElementById('btnUp').classList.remove('selected');
+  document.getElementById('btnDn').classList.remove('selected');
+  document.getElementById('betInput').disabled=false;
+  document.getElementById('betInput').value='';
+  document.getElementById('betMax').disabled=false;
+  document.querySelectorAll('.bqb').forEach(function(b){b.disabled=false;b.classList.remove('active');});
+  document.querySelectorAll('.time-btn').forEach(function(b){b.disabled=false;});
+  document.getElementById('timeSelectorWrap').style.opacity='1';
+  betAmount=0;updateOddsUI();
 }
 
+function setBannerMsg(msg){
+  var el=document.getElementById('roundBanner');
+  el.textContent=msg;
+  el.className='round-banner banner-locked';
+  setTimeout(function(){
+    if(!userBet) updateBanner('open');
+  },2000);
+}
+
+// ═══ RESOLVE ═══
 function resolveRound(){
+  if(!userBet||roundResolved)return;
+  roundResolved=true;
+  updateBanner('resolving');
+
   var finalPrice=currentPrice;
-  var won=prediction==='up'?finalPrice>entryPrice:finalPrice<entryPrice;
-  var pct=Math.abs((finalPrice-entryPrice)/entryPrice*100);
-  var appliedCents=prediction==='up'?lockedUpCents:lockedDnCents;
+  var won=userBet.dir==='up'?finalPrice>roundOpenPrice:finalPrice<roundOpenPrice;
+  var pct=Math.abs((finalPrice-roundOpenPrice)/roundOpenPrice*100);
   var payout=0,balChange=0;
+
   if(won){
-    payout=calcPayout(betAmount,appliedCents);
-    balance+=payout;balChange=payout-betAmount;
+    payout=calcPayout(userBet.amount,userBet.cents);
+    balance+=payout;balChange=payout-userBet.amount;
     streak++;wins++;streakHistory.push(true);
   } else {
-    balChange=-betAmount;streak=0;streakHistory.push(false);
+    balChange=-userBet.amount;streak=0;streakHistory.push(false);
   }
   if(streakHistory.length>7)streakHistory.shift();
-  roundHistory.unshift({won,sym:currentAsset.sym,prediction,entry:entryPrice,final:finalPrice,
-    pct,bet:betAmount,payout,balChange,cents:appliedCents});
+
+  roundHistory.unshift({
+    won,sym:currentAsset.sym,direction:userBet.dir,
+    open:roundOpenPrice,final:finalPrice,pct,
+    bet:userBet.amount,payout,balChange,cents:userBet.cents
+  });
   if(roundHistory.length>10)roundHistory.pop();
+
   updateBalanceDisplay(balChange);updateScoreDisplay();updateStreakBar();updateHistory();
-  showResult(won,finalPrice,pct,payout,balChange,appliedCents);gameState='result';
+  showResult(won,finalPrice,pct,payout,balChange,userBet.cents,userBet.dir);
 }
 
-function showResult(won,finalPrice,pct,payout,balChange,cents){
+function showResult(won,finalPrice,pct,payout,balChange,cents,dir){
   var emoji=won?(streak>2?'🔥':'🎯'):(streak===0?'😤':'💔');
-  var dir=finalPrice>=entryPrice?'▲':'▼';
-  var sub=currentAsset.sym+' went '+dir+' '+pct.toFixed(4)+'%\n'
-    +'Entry: '+fmtPrice(entryPrice)+'  →  '+fmtPrice(finalPrice)+'\n'
-    +'Odds: '+cents+'¢ per share';
-  var payStr=won?'+'+fmtMoney(payout)+(streak>1?' 🔥 ×'+streak:''):'-'+fmtMoney(betAmount);
+  var arrow=finalPrice>=roundOpenPrice?'▲':'▼';
+  var sub=currentAsset.sym+' '+arrow+' '+pct.toFixed(4)+'%\n'
+    +'Open: '+fmtPrice(roundOpenPrice)+'  →  Close: '+fmtPrice(finalPrice)+'\n'
+    +'You bought '+(dir==='up'?'UP':'DOWN')+' @ '+cents+'¢';
+  var payStr=won?'+'+fmtMoney(payout)+(streak>1?' 🔥 ×'+streak:''):'-'+fmtMoney(userBet.amount);
   document.getElementById('resultEmoji').textContent=emoji;
   document.getElementById('resultTitle').textContent=won?'CORRECT!':'WRONG!';
   document.getElementById('resultTitle').style.color=won?'var(--up)':'var(--dn)';
@@ -706,38 +742,77 @@ function showResult(won,finalPrice,pct,payout,balChange,cents){
   document.getElementById('resultOverlay').classList.add('show');
 }
 
-function newRound(){
+function closeResult(){
   document.getElementById('resultOverlay').classList.remove('show');
   if(balance<1){document.getElementById('bustOverlay').classList.add('show');return;}
-  resetState();
 }
 
-function resetState(){
-  gameState='idle';prediction=null;entryPrice=0;betAmount=0;clearInterval(timerInterval);
-  document.getElementById('btnUp').disabled=false;document.getElementById('btnDn').disabled=false;
-  document.getElementById('btnUp').classList.remove('selected');document.getElementById('btnDn').classList.remove('selected');
-  document.getElementById('betInput').disabled=false;document.getElementById('betInput').value='';
-  document.getElementById('betMax').disabled=false;
-  document.querySelectorAll('.bqb').forEach(function(b){b.disabled=false;b.classList.remove('active');});
-  document.querySelectorAll('.time-btn').forEach(function(b){b.disabled=false;});
-  document.getElementById('timeSelectorWrap').style.opacity='1';
-  document.getElementById('timerWrap').style.visibility='hidden';
-  document.getElementById('stateLabel').textContent='Set time · place bet · predict';
-  updateOddsUI();updatePriceDisplay();
-  var el=document.getElementById('entryLine');if(el)el.remove();
+// ═══ ROUND DURATION ═══
+function setRoundDuration(secs){
+  if(userBet)return;
+  roundDuration=secs;
+  document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('time'+secs).classList.add('active');
+  document.getElementById('marketSub').textContent=(secs/60)+' Minute rounds';
+  // Reset round to new boundary
+  roundStartTime=getRoundStartTime();
+  roundOpenPrice=currentPrice||0;
+  updatePriceToBeat();
 }
 
-function resetBalance(){
-  balance=1000;streak=0;wins=0;streakHistory=[];roundHistory=[];betAmount=0;
-  document.getElementById('bustOverlay').classList.remove('show');
-  updateBalanceDisplay();updateScoreDisplay();updateStreakBar();updateHistory();resetState();
+// ═══ ASSET BAR ═══
+function initAssetBar(){
+  document.getElementById('assetBar').innerHTML=ASSETS.map(function(a){
+    return'<button class="asset-btn'+(a.sym===currentAsset.sym?' active':'')+'" onclick="selectAsset(\''+a.sym+'\')">'
+      +'<img src="'+a.logo+'" onerror="this.style.display=\'none\'">'+a.sym+'</button>';
+  }).join('');
 }
 
+function selectAsset(sym){
+  if(userBet)return;
+  currentAsset=ASSETS.find(function(a){return a.sym===sym;});
+  priceHistory=[];currentPrice=0;roundOpenPrice=0;
+  document.getElementById('marketTitle').textContent=sym+' Up or Down';
+  document.getElementById('marketIcon').src=currentAsset.logo;
+  document.querySelectorAll('.asset-btn').forEach(function(b){b.classList.remove('active');});
+  event.target.closest('.asset-btn').classList.add('active');
+  fetchPrice();
+}
+
+// ═══ BET INPUT ═══
+function quickBet(amt,btn){
+  if(userBet)return;
+  betAmount=Math.min(amt,balance);
+  document.getElementById('betInput').value=betAmount;
+  document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');updateOddsUI();
+}
+function onBetInput(){
+  var val=parseFloat(document.getElementById('betInput').value)||0;
+  betAmount=Math.min(Math.max(val,0),balance);
+  document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
+  updateOddsUI();
+}
+function betMax(){
+  if(userBet)return;
+  betAmount=balance;
+  document.getElementById('betInput').value=betAmount.toFixed(2);
+  document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
+  updateOddsUI();
+}
+
+// ═══ DISPLAY ═══
+function updateBalanceDisplay(change){
+  document.getElementById('balanceAmt').textContent=fmtMoney(balance);
+  var chEl=document.getElementById('balanceChange');
+  if(change===undefined){chEl.textContent='';return;}
+  chEl.textContent=(change>=0?'+':'-')+fmtMoney(Math.abs(change));
+  chEl.className='balance-change '+(change>=0?'pos':'neg');
+}
 function updateScoreDisplay(){
   document.getElementById('scoreStreak').textContent=streak;
   document.getElementById('scoreWins').textContent=wins;
 }
-
 function updateStreakBar(){
   var html='';
   for(var i=0;i<7;i++){
@@ -747,27 +822,41 @@ function updateStreakBar(){
   }
   document.getElementById('streakBar').innerHTML=html;
 }
-
 function updateHistory(){
   if(!roundHistory.length){
     document.getElementById('historyList').innerHTML='<div class="empty-hist">No rounds yet.<br>Place a bet and predict!</div>';return;
   }
   document.getElementById('historyList').innerHTML=roundHistory.map(function(r){
-    var dir=r.final>=r.entry?'▲':'▼';
+    var dir=r.final>=r.open?'▲':'▼';
     var payStr=r.won?'+'+fmtMoney(r.payout):'-'+fmtMoney(r.bet);
     return'<div class="history-item">'
       +'<div class="hi-result '+(r.won?'hi-win':'hi-lose')+'">'+(r.won?'✓':'✗')+'</div>'
-      +'<div class="hi-info"><div class="hi-asset">'+r.sym+' — '+(r.prediction==='up'?'UP':'DOWN')+' @ '+r.cents+'¢</div>'
-      +'<div class="hi-detail">'+fmtPrice(r.entry)+' '+dir+' '+fmtPrice(r.final)+' ('+r.pct.toFixed(3)+'%)</div></div>'
+      +'<div class="hi-info"><div class="hi-asset">'+r.sym+' — '+(r.direction==='up'?'UP':'DOWN')+' @ '+r.cents+'¢</div>'
+      +'<div class="hi-detail">'+fmtPrice(r.open)+' '+dir+' '+fmtPrice(r.final)+' ('+r.pct.toFixed(3)+'%)</div></div>'
       +'<div class="hi-right"><div class="hi-pts '+(r.won?'win':'lose')+'">'+payStr+'</div>'
       +'<div class="hi-bet">bet '+fmtMoney(r.bet)+'</div></div></div>';
   }).join('');
 }
-
 function clearHistory(){roundHistory=[];updateHistory();}
 
-initAssetBar();updateBalanceDisplay();updateOddsUI();updateStreakBar();updateHistory();
-fetchPrice();fetchInterval=setInterval(fetchPrice,3000);
+function resetBalance(){
+  balance=1000;streak=0;wins=0;streakHistory=[];roundHistory=[];betAmount=0;userBet=null;roundResolved=false;
+  document.getElementById('bustOverlay').classList.remove('show');
+  updateBalanceDisplay();updateScoreDisplay();updateStreakBar();updateHistory();
+  unlockBetting();updateBanner('open');
+}
+
+// ═══ INIT ═══
+initAssetBar();
+updateBalanceDisplay();
+updateStreakBar();
+updateHistory();
+
+// Init round
+roundStartTime=getRoundStartTime();
+fetchPrice();
+fetchInterval=setInterval(fetchPrice,3000);
+clockInterval=setInterval(checkRoundTick,500); // check every 500ms for smooth countdown
 </script>
 
 </body>
