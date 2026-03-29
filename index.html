@@ -344,6 +344,16 @@ animation:popIn .4s cubic-bezier(0.34,1.56,0.64,1)}
       <span>Min: $1</span>
       <span>Bet: <b id="betDisplay" style="color:var(--gold)">$0.00</b></span>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+      <div style="padding:10px;border-radius:8px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);text-align:center">
+        <div style="font-size:7px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">&#9650; UP wins</div>
+        <div id="previewUpWin" style="font-family:var(--display);font-size:18px;font-weight:900;color:var(--up)">$0.00</div>
+      </div>
+      <div style="padding:10px;border-radius:8px;background:rgba(255,59,92,0.06);border:1px solid rgba(255,59,92,0.2);text-align:center">
+        <div style="font-size:7px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">&#9660; DOWN wins</div>
+        <div id="previewDnWin" style="font-family:var(--display);font-size:18px;font-weight:900;color:var(--dn)">$0.00</div>
+      </div>
+    </div>
   </div>
 
   <!-- TIMER -->
@@ -571,6 +581,9 @@ function betMax(){
 function updateBetUI(){
   document.getElementById('betDisplay').textContent='$'+betAmount.toFixed(2);
   updateOddsUI();
+  var o=calcOdds();
+  document.getElementById('previewUpWin').textContent=fmtMoney(betAmount*o.upOdds);
+  document.getElementById('previewDnWin').textContent=fmtMoney(betAmount*o.dnOdds);
 }
 
 // ═══ PRICE ═══
