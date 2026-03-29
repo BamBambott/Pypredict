@@ -434,7 +434,7 @@ var roundDuration=120; // seconds
 var roundStartTime=0;  // epoch ms of current round start
 var roundOpenPrice=0;  // price at start of current window
 var roundOpenPriceLocked=false; // true once we have a real price for this round
-var userBet=null;      // {dir, amount, cents, entryPrice} or null
+var activeBets=[];     // array of {dir, amount, cents}
 var roundResolved=false;
 var clockInterval=null;
 var fetchInterval=null;
@@ -461,8 +461,8 @@ function checkRoundTick(){
     // New round has started!
     roundStartTime=newStart;
 
-    // Resolve previous round if user had a bet
-    if(userBet&&!roundResolved){
+    // Resolve previous round if user had bets
+    if(activeBets.length>0&&!roundResolved){
       resolveRound();
     }
 
@@ -481,7 +481,7 @@ function checkRoundTick(){
   updateProgressBar(secsLeft);
 
   // Lock betting in last 10 seconds of round
-  if(secsLeft<=10&&secsLeft>0&&!userBet){
+  if(secsLeft<=10&&secsLeft>0&&!activeBets.length){
     updateBanner('locking');
     lockBettingUI(true);
   }
@@ -515,8 +515,8 @@ function updateBanner(state){
     el.textContent='🔒 CLOSING SOON — Last chance to bet!';
     el.className='round-banner banner-locked';
   } else if(state==='bet'){
-    var dir=userBet.dir==='up'?'UP ▲':'DOWN ▼';
-    el.textContent='📌 BET PLACED — '+dir+' @ '+userBet.cents+'¢';
+    var totalBet=activeBets.reduce(function(s,b){return s+b.amount;},0);
+    el.textContent='📌 '+activeBets.length+' bet'+(activeBets.length>1?'s':'')+' placed — $'+totalBet.toFixed(2)+' total';
     el.className='round-banner banner-locked';
   } else if(state==='resolving'){
     el.textContent='⏳ ROUND ENDED — Resolving...';
@@ -526,20 +526,38 @@ function updateBanner(state){
 
 // ═══ ODDS ENGINE ═══
 function calcOdds(){
-  if(priceHistory.length<5) return{upCents:50,dnCents:50};
-  var n=Math.min(priceHistory.length,20);
+  if(priceHistory.length<3) return{upCents:50,dnCents:50};
+  var n=Math.min(priceHistory.length,30);
   var recent=priceHistory.slice(-n);
+
+  // Momentum: % change over window
   var momentum=(recent[recent.length-1]-recent[0])/recent[0]*100;
+
+  // Short-term momentum (last 5 ticks) — more reactive
+  var short=recent.slice(-5);
+  var shortMomentum=(short[short.length-1]-short[0])/short[0]*100;
+
+  // Volatility: avg absolute % change per tick
   var changes=[];
   for(var i=1;i<recent.length;i++) changes.push(Math.abs((recent[i]-recent[i-1])/recent[i-1]*100));
   var avgVol=changes.reduce(function(a,b){return a+b;},0)/changes.length;
-  var momentumShift=Math.min(Math.abs(momentum)*8,30);
-  var volShift=Math.min(avgVol*2,10);
+
+  // Combined signal: weight short-term more
+  var signal=momentum*0.4+shortMomentum*0.6;
+
+  // Shift from 50: strong signal = up to 35¢ shift, vol adds up to 8¢
+  var momentumShift=Math.min(Math.abs(signal)*20,35);
+  var volShift=Math.min(avgVol*5,8);
   var totalShift=momentumShift+volShift;
-  var upProb=momentum>0.01?50+totalShift:momentum<-0.01?50-totalShift:50;
-  var dnProb=100-upProb;
-  var total=upProb+dnProb;
-  upProb=Math.round(upProb/total*96);
+
+  var upProb, dnProb;
+  if(signal>0.001){upProb=50+totalShift;dnProb=50-totalShift;}
+  else if(signal<-0.001){upProb=50-totalShift;dnProb=50+totalShift;}
+  else{upProb=50;dnProb=50;}
+
+  // House edge: scale to 96¢ total
+  var sum=upProb+dnProb;
+  upProb=Math.round(upProb/sum*96);
   dnProb=96-upProb;
   upProb=Math.max(5,Math.min(91,upProb));
   dnProb=Math.max(5,Math.min(91,dnProb));
@@ -549,7 +567,6 @@ function calcOdds(){
 function calcPayout(bet,cents){return bet/(cents/100);}
 
 function updateOddsUI(){
-  if(userBet) return;
   var o=calcOdds();
   document.getElementById('btnUpCents').textContent=o.upCents+'¢';
   document.getElementById('btnDnCents').textContent=o.dnCents+'¢';
@@ -640,7 +657,6 @@ function updateChart(){
 
 // ═══ BETTING ═══
 function placeBet(dir){
-  if(userBet){return;}
   if(getSecsLeft()<=10){
     setBannerMsg('⛔ Too late — wait for next round');return;
   }
@@ -654,29 +670,33 @@ function placeBet(dir){
   var o=calcOdds();
   var cents=dir==='up'?o.upCents:o.dnCents;
 
-  userBet={dir:dir,amount:betAmount,cents:cents,entryPrice:currentPrice};
+  activeBets.push({dir:dir,amount:betAmount,cents:cents});
   balance-=betAmount;
   updateBalanceDisplay();
 
-  // Lock UI
+  // Highlight chosen direction but keep BOTH buttons active
   document.getElementById('btnUp').classList.toggle('selected',dir==='up');
   document.getElementById('btnDn').classList.toggle('selected',dir==='down');
-  lockBettingUI(true);
+
+  // Lock only time selector, keep bet input open for next bet
   document.querySelectorAll('.time-btn').forEach(function(b){b.disabled=true;});
   document.getElementById('timeSelectorWrap').style.opacity='0.4';
 
-  updateBanner('bet');
-}
+  // Reset bet input for next bet
+  betAmount=0;
+  document.getElementById('betInput').value='';
+  document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
+  updateOddsUI();
 
-function lockBettingUI(lock){
-  document.getElementById('btnUp').disabled=lock&&!userBet?true:!!userBet;
-  document.getElementById('btnDn').disabled=lock&&!userBet?true:!!userBet;
-  document.getElementById('betInput').disabled=!!userBet;
-  document.getElementById('betMax').disabled=!!userBet;
-  document.querySelectorAll('.bqb').forEach(function(b){b.disabled=!!userBet;});
+  // Update banner with bet count
+  var totalBet=activeBets.reduce(function(s,b){return s+b.amount;},0);
+  var el=document.getElementById('roundBanner');
+  el.textContent='📌 '+activeBets.length+' bet'+(activeBets.length>1?'s':'')+' placed — total $'+totalBet.toFixed(2)+' — add more or wait';
+  el.className='round-banner banner-locked';
 }
 
 function unlockBetting(){
+  activeBets=[];
   document.getElementById('btnUp').disabled=false;
   document.getElementById('btnDn').disabled=false;
   document.getElementById('btnUp').classList.remove('selected');
@@ -695,48 +715,61 @@ function setBannerMsg(msg){
   el.textContent=msg;
   el.className='round-banner banner-locked';
   setTimeout(function(){
-    if(!userBet) updateBanner('open');
+    if(!activeBets.length) updateBanner('open');
   },2000);
 }
 
 // ═══ RESOLVE ═══
 function resolveRound(){
-  if(!userBet||roundResolved)return;
+  if(!activeBets.length||roundResolved)return;
   roundResolved=true;
   updateBanner('resolving');
 
   var finalPrice=currentPrice;
-  var won=userBet.dir==='up'?finalPrice>roundOpenPrice:finalPrice<roundOpenPrice;
-  var pct=Math.abs((finalPrice-roundOpenPrice)/roundOpenPrice*100);
-  var payout=0,balChange=0;
+  var totalPayout=0,totalBet=0,totalBalChange=0;
+  var allWon=true,allLost=true;
 
-  if(won){
-    payout=calcPayout(userBet.amount,userBet.cents);
-    balance+=payout;balChange=payout-userBet.amount;
-    streak++;wins++;streakHistory.push(true);
-  } else {
-    balChange=-userBet.amount;streak=0;streakHistory.push(false);
-  }
+  activeBets.forEach(function(b){
+    var won=b.dir==='up'?finalPrice>roundOpenPrice:finalPrice<roundOpenPrice;
+    var payout=won?calcPayout(b.amount,b.cents):0;
+    totalBet+=b.amount;
+    totalPayout+=payout;
+    if(won){totalBalChange+=payout-b.amount;allLost=false;}
+    else{totalBalChange-=b.amount;allWon=false;}
+  });
+
+  if(totalPayout>0) balance+=totalPayout;
+  var anyWon=totalPayout>0;
+  var pct=Math.abs((finalPrice-roundOpenPrice)/roundOpenPrice*100);
+
+  if(anyWon){streak++;wins++;streakHistory.push(true);}
+  else{streak=0;streakHistory.push(false);}
   if(streakHistory.length>7)streakHistory.shift();
 
+  // Build summary string for history
+  var betSummary=activeBets.map(function(b){
+    return(b.dir==='up'?'UP':'DOWN')+' $'+b.amount.toFixed(2)+'@'+b.cents+'¢';
+  }).join(', ');
+
   roundHistory.unshift({
-    won,sym:currentAsset.sym,direction:userBet.dir,
+    won:anyWon,sym:currentAsset.sym,
     open:roundOpenPrice,final:finalPrice,pct,
-    bet:userBet.amount,payout,balChange,cents:userBet.cents
+    bet:totalBet,payout:totalPayout,balChange:totalBalChange,
+    summary:betSummary,betCount:activeBets.length
   });
   if(roundHistory.length>10)roundHistory.pop();
 
-  updateBalanceDisplay(balChange);updateScoreDisplay();updateStreakBar();updateHistory();
-  showResult(won,finalPrice,pct,payout,balChange,userBet.cents,userBet.dir);
+  updateBalanceDisplay(totalBalChange);updateScoreDisplay();updateStreakBar();updateHistory();
+  showResult(anyWon,finalPrice,pct,totalPayout,totalBalChange,betSummary);
 }
 
-function showResult(won,finalPrice,pct,payout,balChange,cents,dir){
+function showResult(won,finalPrice,pct,payout,balChange,betSummary){
   var emoji=won?(streak>2?'🔥':'🎯'):(streak===0?'😤':'💔');
   var arrow=finalPrice>=roundOpenPrice?'▲':'▼';
   var sub=currentAsset.sym+' '+arrow+' '+pct.toFixed(4)+'%\n'
     +'Open: '+fmtPrice(roundOpenPrice)+'  →  Close: '+fmtPrice(finalPrice)+'\n'
-    +'You bought '+(dir==='up'?'UP':'DOWN')+' @ '+cents+'¢';
-  var payStr=won?'+'+fmtMoney(payout)+(streak>1?' 🔥 ×'+streak:''):'-'+fmtMoney(userBet.amount);
+    +'Bets: '+betSummary;
+  var payStr=won?'+'+fmtMoney(payout)+(streak>1?' 🔥 ×'+streak:''):'-'+fmtMoney(Math.abs(balChange));
   document.getElementById('resultEmoji').textContent=emoji;
   document.getElementById('resultTitle').textContent=won?'CORRECT!':'WRONG!';
   document.getElementById('resultTitle').style.color=won?'var(--up)':'var(--dn)';
@@ -754,7 +787,7 @@ function closeResult(){
 
 // ═══ ROUND DURATION ═══
 function setRoundDuration(secs){
-  if(userBet)return;
+  if(activeBets.length)return;
   roundDuration=secs;
   document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('time'+secs).classList.add('active');
@@ -774,7 +807,7 @@ function initAssetBar(){
 }
 
 function selectAsset(sym){
-  if(userBet)return;
+  if(activeBets.length)return;
   currentAsset=ASSETS.find(function(a){return a.sym===sym;});
   priceHistory=[];currentPrice=0;roundOpenPrice=0;
   document.getElementById('marketTitle').textContent=sym+' Up or Down';
@@ -786,7 +819,6 @@ function selectAsset(sym){
 
 // ═══ BET INPUT ═══
 function quickBet(amt,btn){
-  if(userBet)return;
   betAmount=Math.min(amt,balance);
   document.getElementById('betInput').value=betAmount;
   document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
@@ -799,7 +831,6 @@ function onBetInput(){
   updateOddsUI();
 }
 function betMax(){
-  if(userBet)return;
   betAmount=balance;
   document.getElementById('betInput').value=betAmount.toFixed(2);
   document.querySelectorAll('.bqb').forEach(function(b){b.classList.remove('active');});
@@ -833,19 +864,21 @@ function updateHistory(){
   }
   document.getElementById('historyList').innerHTML=roundHistory.map(function(r){
     var dir=r.final>=r.open?'▲':'▼';
-    var payStr=r.won?'+'+fmtMoney(r.payout):'-'+fmtMoney(r.bet);
+    var payStr=r.won?'+'+fmtMoney(r.payout):'-'+fmtMoney(Math.abs(r.balChange));
+    var betsLabel=r.betCount>1?r.betCount+' bets':r.summary;
     return'<div class="history-item">'
       +'<div class="hi-result '+(r.won?'hi-win':'hi-lose')+'">'+(r.won?'✓':'✗')+'</div>'
-      +'<div class="hi-info"><div class="hi-asset">'+r.sym+' — '+(r.direction==='up'?'UP':'DOWN')+' @ '+r.cents+'¢</div>'
-      +'<div class="hi-detail">'+fmtPrice(r.open)+' '+dir+' '+fmtPrice(r.final)+' ('+r.pct.toFixed(3)+'%)</div></div>'
+      +'<div class="hi-info"><div class="hi-asset">'+r.sym+' '+dir+' ('+r.pct.toFixed(3)+'%)</div>'
+      +'<div class="hi-detail">'+fmtPrice(r.open)+' → '+fmtPrice(r.final)+'</div>'
+      +'<div class="hi-detail" style="color:var(--muted);font-size:8px">'+betsLabel+'</div></div>'
       +'<div class="hi-right"><div class="hi-pts '+(r.won?'win':'lose')+'">'+payStr+'</div>'
-      +'<div class="hi-bet">bet '+fmtMoney(r.bet)+'</div></div></div>';
+      +'<div class="hi-bet">total '+fmtMoney(r.bet)+'</div></div></div>';
   }).join('');
 }
 function clearHistory(){roundHistory=[];updateHistory();}
 
 function resetBalance(){
-  balance=1000;streak=0;wins=0;streakHistory=[];roundHistory=[];betAmount=0;userBet=null;roundResolved=false;
+  balance=1000;streak=0;wins=0;streakHistory=[];roundHistory=[];betAmount=0;activeBets=[];roundResolved=false;
   document.getElementById('bustOverlay').classList.remove('show');
   updateBalanceDisplay();updateScoreDisplay();updateStreakBar();updateHistory();
   unlockBetting();updateBanner('open');
