@@ -40,15 +40,14 @@ body.light .pp-banner.locked{background:rgba(245,158,11,0.06)}
 
 /* ── TICKER ── */
 .ticker-wrap{height:28px;background:var(–s1);border-bottom:1px solid var(–b);
-overflow:hidden;position:relative}
+overflow:hidden;position:relative;cursor:default}
 .ticker-track{display:flex;align-items:center;height:100%;
-animation:ticker 30s linear infinite;white-space:nowrap;width:max-content}
-.ticker-track:hover{animation-play-state:paused}
-@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+white-space:nowrap;position:absolute;top:0;left:0;will-change:transform}
 .tick-item{display:inline-flex;align-items:center;gap:5px;padding:0 16px;
-font-family:var(–fm);font-size:10px;border-right:1px solid var(–b)}
+font-family:var(–fm);font-size:10px;border-right:1px solid var(–b);
+height:28px;flex-shrink:0}
 .tick-sym{color:var(–sub);font-weight:500}
-.tick-price{color:var(–text);font-weight:400}
+.tick-price{color:var(–text)}
 .tick-chg{font-size:9px}
 .tick-chg.up{color:var(–up2)}.tick-chg.dn{color:var(–dn2)}
 
@@ -1253,15 +1252,62 @@ function fmtMoney(b){return(Math.abs(b)||0).toLocaleString('en-US',{minimumFract
 function fmtChg(c){if(!c||isNaN(c))return'—';return(c>=0?'+':'')+c.toFixed(2)+'%';}
 
 // TICKER
-function updateTicker(){
+// ── TICKER ENGINE ──
+var tickerX=0,tickerHalfW=0,tickerRAF=null,tickerBuilt=false;
+
+function buildTicker(){
   var items=ASSETS.filter(function(a){return prices[a.sym].p>0;});
+  if(!items.length)return;
   var html=items.map(function(a){
     var s=prices[a.sym];
     var cls=s.chg>=0?'up':'dn';
-    return'<div class="tick-item"><span class="tick-sym">'+a.sym+'</span><span class="tick-price">'+fmtP(s.p)+'</span><span class="tick-chg '+cls+'">'+(s.chg>=0?'▲':'▼')+Math.abs(s.chg).toFixed(2)+'%</span></div>';
+    var arrow=s.chg>=0?'▲':'▼';
+    return'<div class="tick-item" data-sym="'+a.sym+'">'
+      +'<span class="tick-sym">'+a.sym+'</span>'
+      +'<span class="tick-price" id="tp-'+a.sym+'">'+fmtP(s.p)+'</span>'
+      +'<span class="tick-chg '+cls+'" id="tc-'+a.sym+'">'+arrow+Math.abs(s.chg).toFixed(2)+'%</span>'
+    +'</div>';
   }).join('');
-  // Duplicate for seamless loop
-  document.getElementById('tickerTrack').innerHTML=html+html;
+  var track=document.getElementById('tickerTrack');
+  // Build 3 copies for seamless infinite scroll
+  track.innerHTML=html+html+html;
+  // Measure half width (one copy)
+  requestAnimationFrame(function(){
+    tickerHalfW=track.scrollWidth/3;
+    tickerX=0;
+    if(!tickerRAF)animateTicker();
+  });
+  tickerBuilt=true;
+}
+
+function updateTickerPrices(){
+  // Just update the text in existing elements — no DOM rebuild, no stutter
+  ASSETS.forEach(function(a){
+    var s=prices[a.sym];if(!s.p)return;
+    var pEl=document.getElementById('tp-'+a.sym);
+    var cEl=document.getElementById('tc-'+a.sym);
+    if(pEl)pEl.textContent=fmtP(s.p);
+    if(cEl){
+      var cls=s.chg>=0?'up':'dn';
+      cEl.textContent=(s.chg>=0?'▲':'▼')+Math.abs(s.chg).toFixed(2)+'%';
+      cEl.className='tick-chg '+cls;
+    }
+  });
+}
+
+function updateTicker(){
+  if(!tickerBuilt){buildTicker();}
+  else{updateTickerPrices();}
+}
+
+function animateTicker(){
+  tickerX-=0.5; // px per frame — adjust for speed
+  if(tickerHalfW>0&&Math.abs(tickerX)>=tickerHalfW){
+    tickerX=0; // seamless reset
+  }
+  var track=document.getElementById('tickerTrack');
+  if(track)track.style.transform='translateX('+tickerX+'px)';
+  tickerRAF=requestAnimationFrame(animateTicker);
 }
 
 // ASSET CHIPS
