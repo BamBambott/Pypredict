@@ -168,11 +168,13 @@ cursor:pointer;transition:all .15s;text-align:center;font-weight:400}
 .bet-input-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .bet-input-wrap{flex:1;position:relative}
 .bet-dollar{position:absolute;left:11px;top:50%;transform:translateY(-50%);
-color:var(–gold);font-family:var(–mono);font-size:14px}
+color:#fff;font-family:var(–mono);font-size:15px;font-weight:700}
 .bet-input{width:100%;padding:10px 10px 10px 26px;border-radius:7px;
-border:1px solid rgba(234,179,8,0.25);background:rgba(234,179,8,0.04);
-color:var(–gold);font-family:var(–mono);font-size:15px;outline:none;transition:border-color .15s}
-.bet-input:focus{border-color:rgba(234,179,8,0.5)}
+border:1px solid rgba(234,179,8,0.4);background:rgba(234,179,8,0.08);
+color:#fff;font-family:var(–mono);font-size:16px;font-weight:700;
+outline:none;transition:border-color .15s;caret-color:var(–gold)}
+.bet-input::placeholder{color:rgba(255,255,255,0.25)}
+.bet-input:focus{border-color:var(–gold);background:rgba(234,179,8,0.12)}
 .bet-input:disabled{opacity:.35;cursor:not-allowed}
 .bet-max{padding:10px 13px;border-radius:7px;border:1px solid rgba(234,179,8,0.25);
 background:transparent;color:var(–gold);font-family:var(–body);font-size:10px;font-weight:600;
