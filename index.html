@@ -38,11 +38,6 @@ body.light .overlay>.ov-card,body.light .overlay>.bust-card{background:#fff;bord
 body.light .pp-banner.open{background:rgba(59,130,246,0.06)}
 body.light .pp-banner.locked{background:rgba(245,158,11,0.06)}
 
-.theme-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(–b2);
-background:var(–s2);cursor:pointer;font-size:14px;display:flex;align-items:center;
-justify-content:center;transition:all .15s}
-.theme-btn:hover{border-color:var(–blue2)}
-
 /* ── TICKER ── */
 .ticker-wrap{height:28px;background:var(–s1);border-bottom:1px solid var(–b);
 overflow:hidden;position:relative}
@@ -114,52 +109,57 @@ text-transform:uppercase;color:var(–sub)}
 .sec-link{font-size:10px;color:var(–blue2);cursor:pointer}
 
 /* ── MARKET FILTERS ── */
-.filter-row{display:flex;gap:5px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
+.filter-row{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
 .filter-row::-webkit-scrollbar{display:none}
-.filter-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:10px;
-font-weight:600;border:1px solid var(–b);background:var(–s1);
-color:var(–sub);cursor:pointer;transition:all .15s;white-space:nowrap}
-.filter-btn.active{border-color:var(–blue2);color:var(–blue2);background:var(–blue3)}
+.filter-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:10px;
+font-weight:700;border:1px solid var(–b);background:var(–s1);
+color:var(–sub);cursor:pointer;transition:all .2s;white-space:nowrap}
+.filter-btn.active{border-color:transparent;color:#fff;background:var(–blue)}
+.filter-btn:hover:not(.active){border-color:var(–b2);color:var(–text)}
 
 /* ── MARKET CARD ── */
-.mkt-card{background:var(–s1);border:1px solid var(–b);border-radius:10px;
-padding:11px 12px;margin-bottom:6px;cursor:pointer;transition:all .18s;
+.mkt-card{background:var(–s1);border:1px solid var(–b);border-radius:12px;
+padding:13px;margin-bottom:8px;cursor:pointer;transition:all .18s;
 position:relative;overflow:hidden}
-.mkt-card:hover{border-color:var(–b2);background:var(–s2);transform:translateX(2px)}
-.mkt-card::before{content:’’;position:absolute;left:0;top:0;bottom:0;
-width:3px;border-radius:0 2px 2px 0;background:var(–blue2);opacity:0;transition:opacity .2s}
-.mkt-card:hover::before{opacity:1}
+.mkt-card:active{transform:scale(0.99)}
+.mkt-card:hover{border-color:var(–b2);background:var(–s2)}
 .mkt-card::after{content:’’;position:absolute;top:0;left:0;right:0;height:1px;
-background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent)}
+background:linear-gradient(90deg,transparent,rgba(255,255,255,0.07),transparent)}
 
-.mc-top{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px}
-.mc-icon{width:30px;height:30px;border-radius:7px;flex-shrink:0;
-display:flex;align-items:center;justify-content:center;font-size:14px}
+.mc-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.mc-icon{width:36px;height:36px;border-radius:9px;flex-shrink:0;
+display:flex;align-items:center;justify-content:center;font-size:18px;
+background:var(–s2)}
 .mc-meta{flex:1;min-width:0}
-.mc-cat{font-size:9px;font-weight:600;letter-spacing:1px;
-text-transform:uppercase;color:var(–sub);margin-bottom:2px}
-.mc-title{font-size:12px;font-weight:600;color:var(–text);line-height:1.35;
+.mc-cat{font-size:8px;font-weight:700;letter-spacing:1.5px;
+text-transform:uppercase;color:var(–sub);margin-bottom:3px}
+.mc-title{font-size:12px;font-weight:700;color:var(–text);line-height:1.4;
 display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.mc-vol{font-size:9px;color:var(–muted);font-family:var(–fm);margin-top:3px}
-.mc-badge{flex-shrink:0;padding:3px 7px;border-radius:5px;
-font-size:9px;font-weight:700;font-family:var(–fm)}
+.mc-vol{font-size:9px;color:var(–muted);font-family:var(–fm);margin-top:4px}
+.mc-badge{flex-shrink:0;padding:4px 9px;border-radius:6px;
+font-size:11px;font-weight:800;font-family:var(–fm);
+background:rgba(34,197,94,0.12);color:var(–up2)}
 
 /* ODDS BAR */
-.odds-bar{height:4px;border-radius:2px;background:var(–dim);
-overflow:hidden;margin-bottom:7px;display:flex}
-.odds-bar-yes{height:100%;background:var(–up2);border-radius:2px;transition:width .5s}
-.odds-bar-no{height:100%;background:var(–dn2);border-radius:2px;flex:1}
+.odds-bar{height:5px;border-radius:3px;background:var(–dim);
+overflow:hidden;margin-bottom:9px;display:flex;gap:1px}
+.odds-bar-yes{height:100%;background:linear-gradient(90deg,#16a34a,#22c55e);
+border-radius:3px 0 0 3px;transition:width .5s}
+.odds-bar-no{height:100%;background:linear-gradient(90deg,#dc2626,#ef4444);
+border-radius:0 3px 3px 0;flex:1}
 
-.mc-btns{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.mc-btn{padding:7px 0;border-radius:7px;border:none;cursor:pointer;
-font-family:var(–f);font-size:11px;font-weight:700;
-transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:1px}
-.mc-btn-yes{background:var(–up3);color:var(–up2);border:1px solid rgba(34,197,94,0.2)}
-.mc-btn-yes:hover{background:rgba(34,197,94,0.2);transform:translateY(-1px)}
-.mc-btn-no{background:var(–dn3);color:var(–dn2);border:1px solid rgba(239,68,68,0.2)}
-.mc-btn-no:hover{background:rgba(239,68,68,0.2);transform:translateY(-1px)}
-.mc-btns button{position:relative;z-index:2}
-.mc-btn span{font-size:8px;font-weight:500;opacity:0.7;font-family:var(–fm)}
+.mc-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mc-btn{padding:11px 0;border-radius:9px;border:none;cursor:pointer;
+font-family:var(–f);font-size:12px;font-weight:800;
+transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:2px;
+position:relative;z-index:2}
+.mc-btn-yes{background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;
+box-shadow:0 3px 10px rgba(34,197,94,0.25)}
+.mc-btn-yes:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 5px 16px rgba(34,197,94,0.35)}
+.mc-btn-no{background:linear-gradient(135deg,#991b1b,#ef4444);color:#fff;
+box-shadow:0 3px 10px rgba(239,68,68,0.25)}
+.mc-btn-no:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 5px 16px rgba(239,68,68,0.35)}
+.mc-btn-cents{font-size:9px;font-family:var(–fm);opacity:0.85;font-weight:500}
 
 /* ── CRYPTO PAGE ── */
 .crypto-featured{background:var(–s1);border:1px solid var(–b);
@@ -777,30 +777,37 @@ var MARKETS=[
 var mktFilter='all';
 var mktBets={};
 var betHistory=[];
-var isLight=false;
 
 function renderMarkets(){
   var list=MARKETS.filter(function(m){return mktFilter==='all'||m.cat===mktFilter;});
   document.getElementById('mktList').innerHTML=list.map(function(m){
-    var yPct=m.yes;var nPct=100-m.yes;
-    var live=m.live?'<span style="padding:2px 6px;border-radius:4px;background:rgba(239,68,68,0.15);color:#ef4444;font-size:8px;font-weight:700;margin-left:5px">LIVE</span>':'';
+    var yPct=m.yes;
+    var badgeBg=m.yes>=60?'rgba(34,197,94,0.12)':m.yes<=30?'rgba(239,68,68,0.12)':'rgba(245,158,11,0.12)';
+    var badgeCol=m.yes>=60?'#22c55e':m.yes<=30?'#ef4444':'#f59e0b';
+    var live=m.live?'<span style="display:inline-flex;align-items:center;gap:3px;margin-left:5px;padding:1px 5px;border-radius:3px;background:rgba(239,68,68,0.15);color:#ef4444;font-size:8px;font-weight:700"><span style="width:4px;height:4px;border-radius:50%;background:#ef4444;display:inline-block;animation:blink 1s infinite"></span>LIVE</span>':'';
     return'<div class="mkt-card" onclick="openMktBet(\''+m.id+'\')">'
       +'<div class="mc-top">'
-        +'<div class="mc-icon" style="background:'+m.color+'22">'+m.icon+'</div>'
+        +'<div class="mc-icon" style="background:'+m.color+'18;font-size:20px">'+m.icon+'</div>'
         +'<div class="mc-meta">'
-          +'<div class="mc-cat">'+m.cat.toUpperCase()+live+'</div>'
+          +'<div class="mc-cat" style="display:flex;align-items:center">'+m.cat.toUpperCase()+live+'</div>'
           +'<div class="mc-title">'+m.title+'</div>'
-          +'<div class="mc-vol">Vol: '+m.vol+' · Ends '+m.ends+'</div>'
+          +'<div class="mc-vol">📊 '+m.vol+' · ⏳ Ends '+m.ends+'</div>'
         +'</div>'
-        +'<div class="mc-badge" style="background:rgba(34,197,94,0.12);color:#22c55e">'+m.yes+'%</div>'
+        +'<div style="padding:4px 9px;border-radius:6px;font-size:12px;font-weight:800;font-family:var(--fm);background:'+badgeBg+';color:'+badgeCol+';flex-shrink:0">'+m.yes+'%</div>'
       +'</div>'
-      +'<div class="odds-bar">'
-        +'<div class="odds-bar-yes" style="width:'+yPct+'%"></div>'
-        +'<div class="odds-bar-no"></div>'
+      +'<div style="margin-bottom:9px">'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:4px">'
+          +'<span style="font-size:9px;font-weight:700;color:var(--up2);font-family:var(--fm)">YES '+m.yes+'¢</span>'
+          +'<span style="font-size:9px;font-weight:700;color:var(--dn2);font-family:var(--fm)">NO '+(100-m.yes)+'¢</span>'
+        +'</div>'
+        +'<div class="odds-bar">'
+          +'<div class="odds-bar-yes" style="width:'+yPct+'%"></div>'
+          +'<div class="odds-bar-no"></div>'
+        +'</div>'
       +'</div>'
       +'<div class="mc-btns">'
-        +'<button class="mc-btn mc-btn-yes" onclick="event.stopPropagation();openMktBet(\''+m.id+'\',\'yes\')">YES <span>'+m.yes+'¢</span></button>'
-        +'<button class="mc-btn mc-btn-no" onclick="event.stopPropagation();openMktBet(\''+m.id+'\',\'no\')">NO <span>'+(100-m.yes)+'¢</span></button>'
+        +'<button class="mc-btn mc-btn-yes" onclick="event.stopPropagation();openMktBet(\''+m.id+'\',\'yes\')">BUY YES<span class="mc-btn-cents">'+m.yes+'¢</span></button>'
+        +'<button class="mc-btn mc-btn-no" onclick="event.stopPropagation();openMktBet(\''+m.id+'\',\'no\')">BUY NO<span class="mc-btn-cents">'+(100-m.yes)+'¢</span></button>'
       +'</div>'
     +'</div>';
   }).join('');
@@ -1520,11 +1527,6 @@ function goTab(i){
 // ══════════════════════════════════════════════
 // THEME
 // ══════════════════════════════════════════════
-function toggleTheme(){
-  isLight=!isLight;
-  document.body.classList.toggle('light',isLight);
-  document.getElementById('themeBtn').textContent=isLight?'🌑':'🌙';
-}
 
 // ══════════════════════════════════════════════
 // INIT
