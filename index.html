@@ -42,7 +42,11 @@ padding:10px 16px;background:rgba(234,179,8,0.04);border-bottom:1px solid rgba(2
 .bal-amt{font-family:var(–head);font-size:22px;font-weight:700;color:var(–gold);letter-spacing:-0.5px}
 .bal-change{font-size:11px;font-family:var(–mono);margin-left:8px}
 .bal-change.pos{color:var(–up)}.bal-change.neg{color:var(–dn)}
-.reset-btn{font-size:10px;color:var(–sub);background:none;border:1px solid var(–border);
+.wallet-btn{padding:6px 12px;border-radius:8px;border:1px solid rgba(139,92,246,0.4);
+background:rgba(139,92,246,0.1);color:#a78bfa;font-family:var(–body);font-size:11px;
+font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.wallet-btn:hover{background:rgba(139,92,246,0.2);border-color:rgba(139,92,246,0.6)}
+.wallet-btn.connected{border-color:rgba(34,197,94,0.4);background:rgba(34,197,94,0.08);color:var(–up)}
 padding:5px 12px;border-radius:6px;cursor:pointer;font-family:var(–body);font-weight:500;
 transition:all .15s}
 .reset-btn:hover{border-color:var(–sub);color:var(–text)}
@@ -188,19 +192,22 @@ letter-spacing:0.5px;cursor:pointer;transition:all .15s}
 
 /* ── BUY BUTTONS ── */
 .buy-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.buy-btn{padding:16px 10px;border-radius:10px;border:none;cursor:pointer;
+.buy-btn{padding:18px 10px;border-radius:12px;border:2px solid transparent;cursor:pointer;
 font-family:var(–head);font-weight:700;transition:all .15s;
-display:flex;flex-direction:column;align-items:center;gap:3px}
+display:flex;flex-direction:column;align-items:center;gap:4px}
 .buy-btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;filter:grayscale(.3)}
-.buy-up-btn{background:var(–up);color:#052e16}
-.buy-up-btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 8px 24px rgba(34,197,94,.25)}
-.buy-up-btn.selected{box-shadow:0 0 0 2px #052e16,0 0 0 4px var(–up)}
-.buy-dn-btn{background:var(–dn);color:#fff}
-.buy-dn-btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 8px 24px rgba(239,68,68,.25)}
-.buy-dn-btn.selected{box-shadow:0 0 0 2px #450a0a,0 0 0 4px var(–dn)}
-.buy-btn-dir{font-size:10px;letter-spacing:1.5px;opacity:0.7;font-weight:600}
-.buy-btn-cents{font-family:var(–mono);font-size:28px;line-height:1;font-weight:400}
-.buy-btn-label{font-size:9px;opacity:0.65;letter-spacing:0.3px;font-family:var(–body)}
+.buy-up-btn{background:linear-gradient(160deg,#16a34a,#22c55e);color:#fff;
+border-color:rgba(34,197,94,0.4);box-shadow:0 4px 20px rgba(34,197,94,0.2)}
+.buy-up-btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 28px rgba(34,197,94,.35)}
+.buy-up-btn.selected{box-shadow:0 0 0 3px rgba(34,197,94,0.5),0 8px 28px rgba(34,197,94,.3)}
+.buy-dn-btn{background:linear-gradient(160deg,#b91c1c,#ef4444);color:#fff;
+border-color:rgba(239,68,68,0.4);box-shadow:0 4px 20px rgba(239,68,68,0.2)}
+.buy-dn-btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 28px rgba(239,68,68,.35)}
+.buy-dn-btn.selected{box-shadow:0 0 0 3px rgba(239,68,68,0.5),0 8px 28px rgba(239,68,68,.3)}
+.buy-btn-dir{font-size:10px;letter-spacing:2px;opacity:0.85;font-weight:700;color:#fff}
+.buy-btn-cents{font-family:var(–mono);font-size:36px;line-height:1;font-weight:400;
+color:#fff;text-shadow:0 1px 8px rgba(0,0,0,0.3)}
+.buy-btn-label{font-size:9px;opacity:0.75;letter-spacing:0.5px;font-family:var(–body);color:#fff}
 
 /* ── HISTORY ── */
 .history-wrap{background:var(–card);border:1px solid var(–border);border-radius:10px;padding:13px}
@@ -259,15 +266,20 @@ animation:popIn .35s cubic-bezier(0.34,1.56,0.64,1)}
   <div>
     <div class="logo">Py<em>Predict</em></div>
   </div>
-  <div class="score-pill">
-    <div class="score-item">
-      <div class="score-n" id="scoreStreak" style="color:var(--up)">0</div>
-      <div class="score-l">Streak</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="score-pill">
+      <div class="score-item">
+        <div class="score-n" id="scoreStreak" style="color:var(--up)">0</div>
+        <div class="score-l">Streak</div>
+      </div>
+      <div class="score-item">
+        <div class="score-n" id="scoreWins" style="color:var(--blue)">0</div>
+        <div class="score-l">Wins</div>
+      </div>
     </div>
-    <div class="score-item">
-      <div class="score-n" id="scoreWins" style="color:var(--blue)">0</div>
-      <div class="score-l">Wins</div>
-    </div>
+    <button class="wallet-btn" id="walletBtn" onclick="openWalletModal()">
+      <span id="walletBtnText">Connect</span>
+    </button>
   </div>
 </header>
 
@@ -457,6 +469,55 @@ animation:popIn .35s cubic-bezier(0.34,1.56,0.64,1)}
       You've lost all your demo balance.<br>It's not real money — start fresh!
     </div>
     <button class="play-again" onclick="resetBalance()">Start Fresh →</button>
+  </div>
+</div>
+
+<!-- WALLET MODAL -->
+
+<div class="result-overlay" id="walletModal">
+  <div class="result-card" style="max-width:320px">
+    <div style="font-size:28px;margin-bottom:8px">🔗</div>
+    <div style="font-family:var(--head);font-size:18px;font-weight:700;margin-bottom:4px" id="walletModalTitle">Connect Wallet</div>
+    <div style="font-size:11px;color:var(--sub);margin-bottom:20px" id="walletModalSub">Choose your wallet to connect</div>
+    <div id="walletOptions">
+      <button onclick="connectWallet('Phantom')" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;
+        border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;
+        margin-bottom:8px;transition:all .15s" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)'">
+        <img src="https://phantom.app/img/phantom-logo.png" onerror="this.src='https://phantom.app/favicon.ico'" style="width:28px;height:28px;border-radius:6px">
+        <div style="text-align:left">
+          <div style="font-family:var(--head);font-size:13px;font-weight:600;color:var(--text)">Phantom</div>
+          <div style="font-size:10px;color:var(--muted)">Solana wallet</div>
+        </div>
+      </button>
+      <button onclick="connectWallet('MetaMask')" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;
+        border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;
+        margin-bottom:8px;transition:all .15s" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='var(--border)'">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width:28px;height:28px;border-radius:6px">
+        <div style="text-align:left">
+          <div style="font-family:var(--head);font-size:13px;font-weight:600;color:var(--text)">MetaMask</div>
+          <div style="font-size:10px;color:var(--muted)">EVM wallet</div>
+        </div>
+      </button>
+      <button onclick="connectWallet('WalletConnect')" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;
+        border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;
+        margin-bottom:8px;transition:all .15s" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--border)'">
+        <img src="https://avatars.githubusercontent.com/u/37784886" style="width:28px;height:28px;border-radius:6px">
+        <div style="text-align:left">
+          <div style="font-family:var(--head);font-size:13px;font-weight:600;color:var(--text)">WalletConnect</div>
+          <div style="font-size:10px;color:var(--muted)">Any wallet via QR</div>
+        </div>
+      </button>
+    </div>
+    <div id="walletConnected" style="display:none;text-align:center">
+      <div style="font-size:36px;margin-bottom:8px">✅</div>
+      <div style="font-family:var(--head);font-size:14px;font-weight:600;color:var(--up);margin-bottom:4px" id="walletConnectedName"></div>
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:16px" id="walletConnectedAddr"></div>
+      <button onclick="disconnectWallet()" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(239,68,68,0.3);
+        background:rgba(239,68,68,0.08);color:var(--dn);font-family:var(--body);font-size:12px;
+        font-weight:600;cursor:pointer;margin-bottom:8px">Disconnect</button>
+    </div>
+    <button onclick="closeWalletModal()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);
+      background:transparent;color:var(--sub);font-family:var(--body);font-size:12px;cursor:pointer;margin-top:4px">Cancel</button>
   </div>
 </div>
 
@@ -884,6 +945,60 @@ function resetBalance(){
   document.getElementById('bustOverlay').classList.remove('show');
   updateBalanceDisplay();updateScoreDisplay();updateStreakBar();updateHistory();
   unlockUI();updateActiveBetsList();updateBanner('open');
+}
+
+// ═══ WALLET ═══
+var walletConnected=false,walletName='',walletAddress='';
+
+function openWalletModal(){
+  var modal=document.getElementById('walletModal');
+  if(walletConnected){
+    document.getElementById('walletOptions').style.display='none';
+    document.getElementById('walletConnected').style.display='block';
+    document.getElementById('walletModalTitle').textContent='Wallet Connected';
+    document.getElementById('walletModalSub').textContent='Your wallet is connected';
+    document.getElementById('walletConnectedName').textContent=walletName;
+    document.getElementById('walletConnectedAddr').textContent=walletAddress;
+  } else {
+    document.getElementById('walletOptions').style.display='block';
+    document.getElementById('walletConnected').style.display='none';
+    document.getElementById('walletModalTitle').textContent='Connect Wallet';
+    document.getElementById('walletModalSub').textContent='Choose your wallet to connect';
+  }
+  modal.classList.add('show');
+}
+
+function closeWalletModal(){
+  document.getElementById('walletModal').classList.remove('show');
+}
+
+function connectWallet(name){
+  // Demo connection — generates a fake address
+  walletConnected=true;walletName=name;
+  var chars='0123456789abcdef';
+  var addr='0x';
+  for(var i=0;i<4;i++) addr+=chars[Math.floor(Math.random()*16)];
+  addr+='...';
+  for(var i=0;i<4;i++) addr+=chars[Math.floor(Math.random()*16)];
+  walletAddress=addr;
+  var btn=document.getElementById('walletBtn');
+  btn.textContent=addr;
+  btn.classList.add('connected');
+  document.getElementById('walletOptions').style.display='none';
+  document.getElementById('walletConnected').style.display='block';
+  document.getElementById('walletModalTitle').textContent='Wallet Connected';
+  document.getElementById('walletModalSub').textContent='';
+  document.getElementById('walletConnectedName').textContent=name;
+  document.getElementById('walletConnectedAddr').textContent=walletAddress;
+  setTimeout(closeWalletModal,1500);
+}
+
+function disconnectWallet(){
+  walletConnected=false;walletName='';walletAddress='';
+  var btn=document.getElementById('walletBtn');
+  btn.textContent='Connect';
+  btn.classList.remove('connected');
+  closeWalletModal();
 }
 
 // ═══ INIT ═══
