@@ -106,10 +106,11 @@ text-transform:uppercase;color:var(–sub)}
 .filter-row{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
 .filter-row::-webkit-scrollbar{display:none}
 .filter-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:10px;
-font-weight:700;border:1px solid var(–b);background:var(–s1);
+font-weight:600;border:1px solid var(–b);background:var(–s2);
 color:var(–sub);cursor:pointer;transition:all .2s;white-space:nowrap}
-.filter-btn.active{border-color:transparent;color:#fff;background:var(–blue)}
-.filter-btn:hover:not(.active){border-color:var(–b2);color:var(–text)}
+.filter-btn.active{border-color:var(–blue2);color:var(–blue2);
+background:rgba(59,130,246,0.12)}
+.filter-btn:hover:not(.active){border-color:var(–b2);color:var(–text);background:var(–s3)}
 
 /* ── MARKET CARD ── */
 .mkt-card{background:var(–s1);border:1px solid var(–b);border-radius:12px;
@@ -388,7 +389,7 @@ animation:blink 2s infinite}
       color:var(--blue2);font-size:11px;font-weight:700;cursor:pointer;
       transition:all .15s;letter-spacing:0.3px">Sign In</button>
     <!-- user chip (shown after sign in) -->
-    <div id="userChip" onclick="openWallet()" style="display:none;align-items:center;
+    <div id="userChip" onclick="openAccountMenu()" style="display:none;align-items:center;
       gap:6px;padding:5px 10px;border-radius:8px;cursor:pointer;
       border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08)">
       <span id="userAvatar" style="font-size:14px">👤</span>
@@ -587,11 +588,11 @@ animation:blink 2s infinite}
 
 <nav class="bnav">
   <button class="bnav-btn active" id="nav0" onclick="goTab(0)">
-    <span class="bnav-icon">📊</span>
+    <span class="bnav-icon">📈</span>
     <span class="bnav-label">Markets</span>
   </button>
   <button class="bnav-btn" id="nav1" onclick="goTab(1)">
-    <span class="bnav-icon">🪙</span>
+    <span class="bnav-icon">₿</span>
     <span class="bnav-label">Crypto</span>
   </button>
   <button class="bnav-btn" id="nav2" onclick="goTab(2)">
@@ -664,6 +665,36 @@ animation:blink 2s infinite}
         border-radius:8px;border:1px solid var(--b2);background:transparent;
         color:var(--sub);font-size:11px;font-weight:600;cursor:pointer">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- ACCOUNT MENU OVERLAY -->
+
+<div class="overlay" id="ovAccount" onclick="if(event.target===this)closeAccountMenu()">
+  <div style="background:var(--s1);border:1px solid var(--b2);border-radius:16px;
+    width:88%;max-width:320px;padding:22px 20px;
+    animation:pop .3s cubic-bezier(0.34,1.56,0.64,1);text-align:center">
+    <div style="font-size:36px;margin-bottom:8px" id="acAvatar">👤</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px" id="acName">—</div>
+    <div style="font-size:10px;color:var(--muted);font-family:var(--fm);margin-bottom:16px" id="acAddr">—</div>
+    <!-- Balance -->
+    <div style="padding:10px 14px;background:var(--s2);border-radius:8px;
+      margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:10px;color:var(--sub)">Demo Balance</span>
+      <span style="font-size:14px;font-weight:800;font-family:var(--fm);color:var(--gold2)">
+        $<span id="acBalance">1,000.00</span>
+      </span>
+    </div>
+    <!-- Disconnect -->
+    <button onclick="disconnectAccount()" style="width:100%;padding:11px;border-radius:9px;
+      border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);
+      color:var(--dn2);font-size:12px;font-weight:700;cursor:pointer;
+      margin-bottom:8px;transition:all .15s">
+      🔌 Disconnect
+    </button>
+    <button onclick="closeAccountMenu()" style="width:100%;padding:9px;border-radius:8px;
+      border:1px solid var(--b);background:transparent;color:var(--sub);
+      font-size:11px;cursor:pointer">Cancel</button>
   </div>
 </div>
 
@@ -1616,8 +1647,25 @@ function goTab(i){
 // ══════════════════════════════════════════════
 
 // ══════════════════════════════════════════════
-// SIGN IN
+// ACCOUNT MENU
 // ══════════════════════════════════════════════
+function openAccountMenu(){
+  document.getElementById('acAvatar').textContent=document.getElementById('userAvatar').textContent||'👤';
+  document.getElementById('acName').textContent=wName||'Account';
+  document.getElementById('acAddr').textContent=wAddr||'—';
+  document.getElementById('acBalance').textContent=fmtMoney(balance);
+  document.getElementById('ovAccount').classList.add('show');
+}
+function closeAccountMenu(){document.getElementById('ovAccount').classList.remove('show');}
+function disconnectAccount(){
+  wConnected=false;wName='';wAddr='';
+  sessionStorage.removeItem('pp_user');
+  document.getElementById('signInBtn').style.display='block';
+  document.getElementById('balChip').style.display='none';
+  document.getElementById('userChip').style.display='none';
+  balance=1000;updateBalDisplay();
+  closeAccountMenu();
+}
 
 // ══════════════════════════════════════════════
 // SIGN IN
