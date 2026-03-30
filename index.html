@@ -537,13 +537,31 @@ animation:blink 2s infinite}
   <!-- ══ NEWS PAGE ══ -->
 
   <div class="page" id="pageNews">
-    <div class="filter-row">
-      <button class="filter-btn active">All News</button>
-      <button class="filter-btn">Bitcoin</button>
-      <button class="filter-btn">DeFi</button>
-      <button class="filter-btn">Regulation</button>
+    <div class="filter-row" id="newsFilterRow">
+      <button class="filter-btn active" onclick="filterNews('all',this)">All News</button>
+      <button class="filter-btn" onclick="filterNews('Bitcoin',this)">Bitcoin</button>
+      <button class="filter-btn" onclick="filterNews('DeFi',this)">DeFi</button>
+      <button class="filter-btn" onclick="filterNews('Regulation',this)">Regulation</button>
+      <button class="filter-btn" onclick="filterNews('Markets',this)">Markets</button>
+      <button class="filter-btn" onclick="filterNews('Pyth',this)">Pyth</button>
     </div>
     <div id="newsList"></div>
+  </div>
+
+  <!-- ══ MY BETS PAGE ══ -->
+
+  <div class="page" id="pageBets">
+    <div class="sec-hd" style="margin-bottom:10px">
+      <span class="sec-title">My Bets</span>
+      <span class="sec-link" onclick="clearBetHistory()">Clear all</span>
+    </div>
+    <div id="betHistoryFull">
+      <div style="text-align:center;padding:40px 20px;color:var(--sub)">
+        <div style="font-size:32px;margin-bottom:10px">🎯</div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">No bets yet</div>
+        <div style="font-size:10px;color:var(--muted)">Place bets on Markets, Football or Crypto to see them here</div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -566,6 +584,10 @@ animation:blink 2s infinite}
   <button class="bnav-btn" id="nav3" onclick="goTab(3)">
     <span class="bnav-icon">📰</span>
     <span class="bnav-label">News</span>
+  </button>
+  <button class="bnav-btn" id="nav4" onclick="goTab(4)">
+    <span class="bnav-icon">🎯</span>
+    <span class="bnav-label">My Bets</span>
   </button>
 </nav>
 
@@ -803,32 +825,57 @@ function mbPlace(side){
 }
 
 function renderBetHistory(){
+  // Update markets page mini list
   var wrap=document.getElementById('betHistoryWrap');
   var list=document.getElementById('betHistoryList');
-  if(!betHistory.length){wrap.style.display='none';return;}
-  wrap.style.display='block';
-  list.innerHTML=betHistory.map(function(b){
-    var sideCol=b.side==='yes'?'var(--up2)':'var(--dn2)';
-    var sideBg=b.side==='yes'?'var(--up3)':'var(--dn3)';
-    return'<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;'
-      +'background:var(--s1);border:1px solid var(--b);border-radius:7px;margin-bottom:5px">'
-      +'<div style="padding:2px 7px;border-radius:4px;background:'+sideBg+';color:'+sideCol+';'
-        +'font-size:9px;font-weight:700;flex-shrink:0">'+b.side.toUpperCase()+'</div>'
-      +'<div style="flex:1;min-width:0">'
-        +'<div style="font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;'
-          +'overflow:hidden;text-overflow:ellipsis">'+b.title+'</div>'
-        +'<div style="font-size:9px;color:var(--muted);margin-top:1px">'+b.cat.toUpperCase()+' · '+b.time+'</div>'
+  if(!betHistory.length){if(wrap)wrap.style.display='none';return;}
+  if(wrap)wrap.style.display='block';
+  if(list)list.innerHTML=betHistory.slice(0,3).map(betItemHTML).join('');
+  // Also refresh full bets page if visible
+  renderBetHistoryFull();
+}
+
+function renderBetHistoryFull(){
+  var el=document.getElementById('betHistoryFull');
+  if(!el)return;
+  if(!betHistory.length){
+    el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--sub)">'
+      +'<div style="font-size:32px;margin-bottom:10px">🎯</div>'
+      +'<div style="font-size:12px;font-weight:600;margin-bottom:4px">No bets yet</div>'
+      +'<div style="font-size:10px;color:var(--muted)">Place bets on Markets, Football or Crypto to see them here</div>'
+      +'</div>';
+    return;
+  }
+  el.innerHTML=betHistory.map(betItemHTML).join('');
+}
+
+function betItemHTML(b){
+  var sideCol=b.side==='yes'||b.side==='up'?'var(--up2)':'var(--dn2)';
+  var sideBg=b.side==='yes'||b.side==='up'?'var(--up3)':'var(--dn3)';
+  var sideLabel=(b.side==='yes'?'YES':b.side==='up'?'UP ▲':b.side==='no'?'NO':b.side==='down'?'DOWN ▼':b.side).toUpperCase();
+  return'<div style="display:flex;align-items:center;gap:8px;padding:10px 11px;'
+    +'background:var(--s1);border:1px solid var(--b);border-radius:8px;margin-bottom:6px">'
+    +'<div style="padding:3px 8px;border-radius:5px;background:'+sideBg+';color:'+sideCol+';'
+      +'font-size:9px;font-weight:700;flex-shrink:0;letter-spacing:0.5px">'+sideLabel+'</div>'
+    +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+b.title+'</div>'
+      +'<div style="font-size:9px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px">'
+        +'<span style="background:var(--s2);padding:1px 5px;border-radius:3px;font-weight:600">'+b.cat.toUpperCase()+'</span>'
+        +'<span>'+b.time+'</span>'
+        +'<span style="color:var(--sub)">@ '+b.odds+'¢</span>'
       +'</div>'
-      +'<div style="text-align:right;flex-shrink:0">'
-        +'<div style="font-size:10px;font-weight:700;font-family:var(--fm);color:var(--text)">$'+b.amt.toFixed(2)+'</div>'
-        +'<div style="font-size:9px;color:var(--up2);font-family:var(--fm)">→ $'+b.win.toFixed(2)+'</div>'
-      +'</div>'
-    +'</div>';
-  }).join('');
+    +'</div>'
+    +'<div style="text-align:right;flex-shrink:0">'
+      +'<div style="font-size:11px;font-weight:700;font-family:var(--fm)">$'+b.amt.toFixed(2)+'</div>'
+      +'<div style="font-size:9px;color:var(--up2);font-family:var(--fm)">→ $'+b.win.toFixed(2)+'</div>'
+    +'</div>'
+  +'</div>';
 }
 
 function clearBetHistory(){
-  betHistory=[];renderBetHistory();
+  betHistory=[];renderBetHistory();renderBetHistoryFull();
+  var wrap=document.getElementById('betHistoryWrap');
+  if(wrap)wrap.style.display='none';
 }
 
 // ══════════════════════════════════════════════
@@ -919,17 +966,26 @@ var NEWS=[
   {cat:'Markets',title:'XRP Breaks $1.50 Resistance After Court Filing Favors Ripple',src:'CryptoSlate',time:'1d ago',img:'https://images.unsplash.com/photo-1622186477895-f2af6a0f5a97?w=120&h=120&fit=crop'},
 ];
 
+var newsFilter='all';
+function filterNews(f,btn){
+  newsFilter=f;
+  document.querySelectorAll('#newsFilterRow .filter-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderNews();
+}
+
 function renderNews(){
-  document.getElementById('newsList').innerHTML=NEWS.map(function(n){
+  var items=newsFilter==='all'?NEWS:NEWS.filter(function(n){return n.cat===newsFilter;});
+  document.getElementById('newsList').innerHTML=items.length?items.map(function(n){
     return'<div class="news-card">'
       +'<div class="nc-img"><img src="'+n.img+'" onerror="this.style.display=\'none\'"></div>'
       +'<div class="nc-body">'
         +'<div class="nc-cat">'+n.cat+'</div>'
         +'<div class="nc-title">'+n.title+'</div>'
-        +'<div class="nc-meta"><span class="nc-src">'+n.src+'</span>· '+n.time+'</div>'
+        +'<div class="nc-meta"><span class="nc-src">'+n.src+'</span> · '+n.time+'</div>'
       +'</div>'
     +'</div>';
-  }).join('');
+  }).join(''):'<div style="text-align:center;padding:30px;color:var(--sub);font-size:11px">No news in this category yet.</div>';
 }
 
 // ══════════════════════════════════════════════
@@ -1185,6 +1241,15 @@ function ppBet(dir){
   var o=ppCalcOdds();var cents=dir==='up'?o.up:o.dn;
   ppActiveBets.push({dir:dir,amt:ppBetAmt,cents:cents});
   balance-=ppBetAmt;updateBalDisplay();
+  // Record to global bet history
+  betHistory.unshift({
+    title:selSym+'/USD — Price Prediction',cat:'Crypto',
+    side:dir,odds:cents,amt:ppBetAmt,
+    win:parseFloat((ppBetAmt/(cents/100)).toFixed(2)),
+    time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})
+  });
+  if(betHistory.length>20)betHistory.pop();
+  renderBetHistory();
   document.getElementById('ppBtnUp').classList.toggle('sel',dir==='up');
   document.getElementById('ppBtnDn').classList.toggle('sel',dir==='down');
   document.querySelectorAll('.pp-dur-btn').forEach(function(b){b.disabled=true;});
@@ -1346,13 +1411,14 @@ function doDisconnect(){
 // ══════════════════════════════════════════════
 // TAB NAVIGATION
 // ══════════════════════════════════════════════
-var pages=['pageMarkets','pageCrypto','pageFootball','pageNews'];
+var pages=['pageMarkets','pageCrypto','pageFootball','pageNews','pageBets'];
 function goTab(i){
   pages.forEach(function(p,j){
     document.getElementById(p).classList.toggle('active',j===i);
     document.getElementById('nav'+j).classList.toggle('active',j===i);
   });
   document.getElementById('scrollArea').scrollTop=0;
+  if(i===4)renderBetHistoryFull();
 }
 
 // ══════════════════════════════════════════════
