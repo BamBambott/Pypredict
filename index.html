@@ -364,117 +364,10 @@ animation:blink 2s infinite}
 </head>
 <body>
 
-<!-- Google Identity Services -->
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
-<!-- ══ SIGN IN SCREEN ══ -->
-
-<div id="signInScreen" style="position:fixed;inset:0;z-index:1000;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:24px">
-
-  <!-- Logo + Brand -->
-
-  <div style="text-align:center;margin-bottom:36px">
-    <img id="siLogo" src="" style="width:72px;height:72px;border-radius:18px;
-      object-fit:cover;margin-bottom:14px;box-shadow:0 8px 32px rgba(59,130,246,0.3)">
-    <div style="font-family:var(--f);font-size:26px;font-weight:800;
-      letter-spacing:-0.5px;color:var(--text)">Py<span style="color:var(--blue2)">Predict</span></div>
-    <div style="font-size:11px;color:var(--sub);margin-top:4px;letter-spacing:0.5px">
-      Prediction Markets · Powered by Pyth Network
-    </div>
-  </div>
-
-  <!-- Sign in card -->
-
-  <div style="width:100%;max-width:340px;background:var(--s1);
-    border:1px solid var(--b2);border-radius:16px;padding:22px 20px">
-
-```
-<div style="font-size:13px;font-weight:700;color:var(--text);
-  text-align:center;margin-bottom:4px">Sign in to continue</div>
-<div style="font-size:10px;color:var(--muted);text-align:center;
-  margin-bottom:20px">Start with $1,000 demo balance</div>
-
-<!-- Google Sign In -->
-<button onclick="signInWithGoogle()" id="googleBtn"
-  style="width:100%;display:flex;align-items:center;justify-content:center;
-  gap:10px;padding:13px 16px;border-radius:10px;border:1px solid var(--b2);
-  background:var(--s2);cursor:pointer;transition:all .18s;margin-bottom:10px">
-  <svg width="18" height="18" viewBox="0 0 18 18">
-    <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
-    <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.01c-.72.48-1.63.76-2.7.76-2.08 0-3.84-1.4-4.47-3.29H1.84v2.08A8 8 0 0 0 8.98 17z"/>
-    <path fill="#FBBC05" d="M4.51 10.52A4.8 4.8 0 0 1 4.26 9c0-.53.09-1.04.25-1.52V5.4H1.84A8 8 0 0 0 .98 9c0 1.29.31 2.51.86 3.6l2.67-2.08z"/>
-    <path fill="#EA4335" d="M8.98 3.58c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 8.98 1a8 8 0 0 0-7.14 4.4l2.67 2.08c.63-1.89 2.39-3.3 4.47-3.3z"/>
-  </svg>
-  <span style="font-size:13px;font-weight:600;color:var(--text)">Continue with Google</span>
-</button>
-
-<!-- Divider -->
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-  <div style="flex:1;height:1px;background:var(--b)"></div>
-  <span style="font-size:9px;color:var(--muted);font-weight:600;letter-spacing:1px">OR</span>
-  <div style="flex:1;height:1px;background:var(--b)"></div>
-</div>
-
-<!-- Wallet Sign In -->
-<button onclick="signInWithWallet()"
-  style="width:100%;display:flex;align-items:center;justify-content:center;
-  gap:10px;padding:13px 16px;border-radius:10px;
-  border:1px solid rgba(139,92,246,0.35);
-  background:rgba(139,92,246,0.08);cursor:pointer;transition:all .18s;margin-bottom:10px">
-  <span style="font-size:16px">🔗</span>
-  <span style="font-size:13px;font-weight:600;color:var(--purple2)">Connect Wallet</span>
-</button>
-
-<!-- Wallet options (hidden by default) -->
-<div id="siWalletOpts" style="display:none;gap:6px;flex-direction:column">
-  <button onclick="siConnectWallet('Phantom')"
-    style="width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;
-    border-radius:8px;border:1px solid var(--b);background:var(--s2);cursor:pointer;transition:all .15s">
-    <img src="https://phantom.app/favicon.ico" style="width:22px;height:22px;border-radius:5px" onerror="this.style.display='none'">
-    <div style="text-align:left">
-      <div style="font-size:11px;font-weight:700;color:var(--text)">Phantom</div>
-      <div style="font-size:9px;color:var(--muted)">Solana</div>
-    </div>
-  </button>
-  <button onclick="siConnectWallet('MetaMask')"
-    style="width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;
-    border-radius:8px;border:1px solid var(--b);background:var(--s2);cursor:pointer;transition:all .15s">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width:22px;height:22px">
-    <div style="text-align:left">
-      <div style="font-size:11px;font-weight:700;color:var(--text)">MetaMask</div>
-      <div style="font-size:9px;color:var(--muted)">EVM · Ethereum</div>
-    </div>
-  </button>
-  <button onclick="siConnectWallet('demo')"
-    style="width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;
-    border-radius:8px;border:1px solid var(--b);background:var(--s2);cursor:pointer">
-    <span style="font-size:18px">👻</span>
-    <div style="text-align:left">
-      <div style="font-size:11px;font-weight:700;color:var(--text)">Demo Wallet</div>
-      <div style="font-size:9px;color:var(--muted)">No wallet? Use demo mode</div>
-    </div>
-  </button>
-</div>
-```
-
-  </div>
-
-  <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:16px;
-    line-height:1.7;max-width:280px">
-    By signing in you agree to use demo funds only.<br>
-    No real money is at risk.
-  </div>
-</div>
-
 <!-- TICKER -->
 
 <div class="ticker-wrap">
-  <div class="ticker-track" id="tickerTrack">
-    <!-- filled by JS x2 for seamless loop -->
-  </div>
+  <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
 <!-- HEADER -->
@@ -487,8 +380,21 @@ animation:blink 2s infinite}
     </div>
   </div>
   <div class="hdr-right">
-    <div class="bal-chip" id="balChip">💰 $<span id="balDisplay">1,000.00</span></div>
-    <div class="wallet-chip" id="walletChip" onclick="openWallet()">Connect</div>
+    <!-- shown after sign in -->
+    <div class="bal-chip" id="balChip" style="display:none">💰 $<span id="balDisplay">1,000.00</span></div>
+    <!-- sign in button (shown before sign in) -->
+    <button id="signInBtn" onclick="openSignIn()" style="padding:6px 14px;border-radius:8px;
+      border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);
+      color:var(--blue2);font-size:11px;font-weight:700;cursor:pointer;
+      transition:all .15s;letter-spacing:0.3px">Sign In</button>
+    <!-- user chip (shown after sign in) -->
+    <div id="userChip" onclick="openWallet()" style="display:none;align-items:center;
+      gap:6px;padding:5px 10px;border-radius:8px;cursor:pointer;
+      border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08)">
+      <span id="userAvatar" style="font-size:14px">👤</span>
+      <span id="userLabel" style="font-size:10px;font-weight:600;color:var(--up2);
+        max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    </div>
   </div>
 </header>
 
@@ -758,6 +664,88 @@ animation:blink 2s infinite}
         border-radius:8px;border:1px solid var(--b2);background:transparent;
         color:var(--sub);font-size:11px;font-weight:600;cursor:pointer">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- SIGN IN OVERLAY -->
+
+<div class="overlay" id="ovSignIn" onclick="if(event.target===this)closeSignIn()">
+  <div style="background:var(--s1);border:1px solid var(--b2);border-radius:18px;
+    width:92%;max-width:340px;padding:26px 22px;
+    animation:pop .3s cubic-bezier(0.34,1.56,0.64,1)">
+
+```
+<!-- Logo -->
+<div style="text-align:center;margin-bottom:20px">
+  <img id="siLogoModal" src="" style="width:56px;height:56px;border-radius:14px;
+    object-fit:cover;margin-bottom:10px">
+  <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px">
+    Py<span style="color:var(--blue2)">Predict</span>
+  </div>
+  <div style="font-size:10px;color:var(--muted);margin-top:3px">
+    Connect wallet or try demo mode
+  </div>
+</div>
+
+<!-- Phantom -->
+<button onclick="siConnect('Phantom')"
+  style="width:100%;display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:10px;border:1px solid var(--b);
+  background:var(--s2);cursor:pointer;margin-bottom:8px;transition:all .15s"
+  onmouseover="this.style.borderColor='#ab9ff2'" onmouseout="this.style.borderColor='var(--b)'">
+  <img src="https://phantom.app/favicon.ico" style="width:26px;height:26px;border-radius:6px" onerror="this.style.display='none'">
+  <div style="text-align:left;flex:1">
+    <div style="font-size:12px;font-weight:700;color:var(--text)">Phantom Wallet</div>
+    <div style="font-size:9px;color:var(--muted)">Solana · Most popular</div>
+  </div>
+  <span style="font-size:9px;color:var(--sub)">→</span>
+</button>
+
+<!-- MetaMask -->
+<button onclick="siConnect('MetaMask')"
+  style="width:100%;display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:10px;border:1px solid var(--b);
+  background:var(--s2);cursor:pointer;margin-bottom:8px;transition:all .15s"
+  onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='var(--b)'">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width:26px;height:26px">
+  <div style="text-align:left;flex:1">
+    <div style="font-size:12px;font-weight:700;color:var(--text)">MetaMask</div>
+    <div style="font-size:9px;color:var(--muted)">Ethereum · EVM chains</div>
+  </div>
+  <span style="font-size:9px;color:var(--sub)">→</span>
+</button>
+
+<!-- Divider -->
+<div style="display:flex;align-items:center;gap:8px;margin:10px 0">
+  <div style="flex:1;height:1px;background:var(--b)"></div>
+  <span style="font-size:9px;color:var(--muted);font-weight:600;letter-spacing:1px">OR</span>
+  <div style="flex:1;height:1px;background:var(--b)"></div>
+</div>
+
+<!-- Demo Mode -->
+<button onclick="siConnect('demo')"
+  style="width:100%;display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:10px;
+  border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.06);
+  cursor:pointer;margin-bottom:14px;transition:all .15s"
+  onmouseover="this.style.borderColor='var(--gold2)'" onmouseout="this.style.borderColor='rgba(245,158,11,0.3)'">
+  <span style="font-size:22px">🎮</span>
+  <div style="text-align:left;flex:1">
+    <div style="font-size:12px;font-weight:700;color:var(--gold2)">Demo Account</div>
+    <div style="font-size:9px;color:var(--muted)">No wallet needed · $1,000 demo balance</div>
+  </div>
+  <span style="font-size:9px;color:var(--sub)">→</span>
+</button>
+
+<div style="font-size:9px;color:var(--muted);text-align:center;line-height:1.7">
+  No real money involved · Demo funds only
+</div>
+
+<button onclick="closeSignIn()" style="width:100%;padding:9px;border-radius:8px;
+  border:1px solid var(--b);background:transparent;color:var(--sub);
+  font-size:11px;font-weight:500;cursor:pointer;margin-top:10px">Cancel</button>
+```
+
   </div>
 </div>
 
@@ -1631,86 +1619,63 @@ function goTab(i){
 // SIGN IN
 // ══════════════════════════════════════════════
 
-// Set logo on sign-in screen
-(function(){
-  var logoEl=document.getElementById('siLogo');
-  var brandLogo=document.querySelector('.brand img');
-  if(brandLogo&&logoEl) logoEl.src=brandLogo.src;
-})();
-
-// Google Client ID — replace with yours from console.cloud.google.com
-var GOOGLE_CLIENT_ID='YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
-
-function signInWithGoogle(){
-  // If no real client ID set, fall into demo mode
-  if(GOOGLE_CLIENT_ID.indexOf('YOUR_')===0){
-    // Demo: simulate Google sign-in
-    enterApp('Google','demo@gmail.com','https://lh3.googleusercontent.com/a/default');
-    return;
-  }
-  google.accounts.id.initialize({
-    client_id:GOOGLE_CLIENT_ID,
-    callback:function(resp){
-      var payload=JSON.parse(atob(resp.credential.split('.')[1]));
-      enterApp('Google',payload.email,payload.picture);
-    },
-    auto_select:false
-  });
-  google.accounts.id.prompt();
+// ══════════════════════════════════════════════
+// SIGN IN
+// ══════════════════════════════════════════════
+function openSignIn(){
+  // Set logo in modal
+  var brandImg=document.querySelector('.brand img');
+  var modalLogo=document.getElementById('siLogoModal');
+  if(brandImg&&modalLogo)modalLogo.src=brandImg.src;
+  document.getElementById('ovSignIn').classList.add('show');
 }
+function closeSignIn(){document.getElementById('ovSignIn').classList.remove('show');}
 
-function signInWithWallet(){
-  var opts=document.getElementById('siWalletOpts');
-  opts.style.display=opts.style.display==='flex'?'none':'flex';
-}
-
-async function siConnectWallet(name){
-  var addr='';
+async function siConnect(name){
+  var addr='',avatar='👤';
   try{
     if(name==='Phantom'){
       var sol=window.solana||window.phantom?.solana;
       if(sol&&sol.isPhantom){
-        var r=await sol.connect();addr=r.publicKey.toString();
+        var r=await sol.connect();addr=r.publicKey.toString();avatar='👻';
       } else {window.open('https://phantom.app','_blank');return;}
     } else if(name==='MetaMask'){
       var eth=window.ethereum;
-      if(eth&&eth.isMetaMask){
+      if(eth){
         var accounts=await eth.request({method:'eth_requestAccounts'});
-        addr=accounts[0];
+        addr=accounts[0];avatar='🦊';
       } else {window.open('https://metamask.io','_blank');return;}
     } else {
-      // Demo wallet
-      addr='demo_'+Math.random().toString(36).substr(2,8);
+      // Demo mode
+      addr='Demo Account';avatar='🎮';
     }
-    var display=addr.length>12?addr.slice(0,6)+'...'+addr.slice(-4):addr;
-    enterApp(name,display,null);
-  } catch(e){alert('Could not connect: '+(e.message||'cancelled'));}
+    var display=addr.length>16?addr.slice(0,6)+'...'+addr.slice(-4):addr;
+    enterApp(name,display,avatar);
+  } catch(e){
+    if(e.code!==4001)alert('Could not connect: '+(e.message||'Try again'));
+  }
 }
 
 function enterApp(provider,identity,avatar){
-  // Save session
   sessionStorage.setItem('pp_user',JSON.stringify({provider,identity,avatar}));
-  // Update header wallet chip
-  var chip=document.getElementById('walletChip');
-  chip.textContent=identity.length>20?identity.slice(0,6)+'...'+identity.slice(-4):identity;
-  chip.classList.add('on');
+  // Hide sign-in btn, show balance + user chip
+  document.getElementById('signInBtn').style.display='none';
+  document.getElementById('balChip').style.display='flex';
+  var chip=document.getElementById('userChip');
+  chip.style.display='flex';
+  document.getElementById('userAvatar').textContent=avatar||'👤';
+  document.getElementById('userLabel').textContent=identity;
   wConnected=true;wName=provider;wAddr=identity;
-  // Fade out sign-in screen
-  var screen=document.getElementById('signInScreen');
-  screen.style.transition='opacity .4s';
-  screen.style.opacity='0';
-  setTimeout(function(){screen.style.display='none';},400);
+  closeSignIn();
 }
 
 function checkSession(){
   var saved=sessionStorage.getItem('pp_user');
-  if(saved){
-    try{
-      var u=JSON.parse(saved);
-      enterApp(u.provider,u.identity,u.avatar);
-    }catch(e){sessionStorage.removeItem('pp_user');}
-  }
+  if(saved){try{var u=JSON.parse(saved);enterApp(u.provider,u.identity,u.avatar);}catch(e){}}
 }
+
+// Update balance display to also show balance chip
+var _origUpdateBal=updateBalDisplay;
 
 // ══════════════════════════════════════════════
 // INIT
