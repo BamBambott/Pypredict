@@ -80,15 +80,23 @@ font-size:10px;color:var(–purple2);cursor:pointer;font-weight:600}
 
 /* ── BOTTOM NAV ── */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;
-display:flex;background:var(–nav-bg,rgba(7,9,16,0.97));
-border-top:1px solid var(–b);backdrop-filter:blur(20px);
+display:flex;background:var(–nav-bg,rgba(7,9,16,0.98));
+border-top:1px solid var(–b);backdrop-filter:blur(24px);
 padding-bottom:env(safe-area-inset-bottom)}
 .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;
-justify-content:center;gap:3px;padding:8px 0;cursor:pointer;
-transition:all .15s;border:none;background:none;color:var(–sub)}
+justify-content:center;gap:3px;padding:9px 4px;cursor:pointer;
+transition:all .2s;border:none;background:none;color:var(–sub);
+position:relative}
+.bnav-btn::before{content:’’;position:absolute;top:0;left:50%;transform:translateX(-50%);
+width:0;height:2px;border-radius:0 0 2px 2px;background:var(–blue2);
+transition:width .2s}
 .bnav-btn.active{color:var(–blue2)}
-.bnav-icon{font-size:16px;line-height:1}
-.bnav-label{font-size:9px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase}
+.bnav-btn.active::before{width:28px}
+.bnav-icon{font-size:17px;line-height:1;transition:transform .2s}
+.bnav-btn.active .bnav-icon{transform:scale(1.15)}
+.bnav-label{font-size:9px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;
+transition:all .2s}
+.bnav-btn.active .bnav-label{color:var(–blue2)}
 
 /* ── SCROLL AREA ── */
 .scroll-area{position:fixed;top:76px;bottom:56px;left:0;right:0;
@@ -115,11 +123,14 @@ color:var(–sub);cursor:pointer;transition:all .15s;white-space:nowrap}
 
 /* ── MARKET CARD ── */
 .mkt-card{background:var(–s1);border:1px solid var(–b);border-radius:10px;
-padding:11px 12px;margin-bottom:6px;cursor:pointer;transition:all .15s;
+padding:11px 12px;margin-bottom:6px;cursor:pointer;transition:all .18s;
 position:relative;overflow:hidden}
-.mkt-card:hover{border-color:var(–b2);background:var(–s2)}
+.mkt-card:hover{border-color:var(–b2);background:var(–s2);transform:translateX(2px)}
+.mkt-card::before{content:’’;position:absolute;left:0;top:0;bottom:0;
+width:3px;border-radius:0 2px 2px 0;background:var(–blue2);opacity:0;transition:opacity .2s}
+.mkt-card:hover::before{opacity:1}
 .mkt-card::after{content:’’;position:absolute;top:0;left:0;right:0;height:1px;
-background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)}
+background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent)}
 
 .mc-top{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px}
 .mc-icon{width:30px;height:30px;border-radius:7px;flex-shrink:0;
@@ -538,12 +549,14 @@ animation:blink 2s infinite}
 
   <div class="page" id="pageNews">
     <div class="filter-row" id="newsFilterRow">
-      <button class="filter-btn active" onclick="filterNews('all',this)">All News</button>
-      <button class="filter-btn" onclick="filterNews('Bitcoin',this)">Bitcoin</button>
-      <button class="filter-btn" onclick="filterNews('DeFi',this)">DeFi</button>
-      <button class="filter-btn" onclick="filterNews('Regulation',this)">Regulation</button>
-      <button class="filter-btn" onclick="filterNews('Markets',this)">Markets</button>
-      <button class="filter-btn" onclick="filterNews('Pyth',this)">Pyth</button>
+      <button class="filter-btn active" onclick="filterNews('all',this)">All</button>
+      <button class="filter-btn" onclick="filterNews('Bitcoin',this)">₿ Bitcoin</button>
+      <button class="filter-btn" onclick="filterNews('Ethereum',this)">Ξ Ethereum</button>
+      <button class="filter-btn" onclick="filterNews('DeFi',this)">🔮 DeFi</button>
+      <button class="filter-btn" onclick="filterNews('Regulation',this)">⚖️ Regulation</button>
+      <button class="filter-btn" onclick="filterNews('Markets',this)">📊 Markets</button>
+      <button class="filter-btn" onclick="filterNews('Solana',this)">◎ Solana</button>
+      <button class="filter-btn" onclick="filterNews('Pyth',this)">🔴 Pyth</button>
     </div>
     <div id="newsList"></div>
   </div>
@@ -954,16 +967,31 @@ function openFootballBet(el,home,away,homeOdds,awayOdds,side){
 // NEWS PAGE
 // ══════════════════════════════════════════════
 var NEWS=[
-  {cat:'Bitcoin',title:'Bitcoin Eyes $70K as Institutional Demand Surges Post-Halving',src:'CoinDesk',time:'2h ago',img:'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&h=120&fit=crop'},
-  {cat:'DeFi',title:'Total Value Locked in DeFi Protocols Reaches New 2025 High at $415B',src:'The Block',time:'4h ago',img:'https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=120&h=120&fit=crop'},
-  {cat:'Regulation',title:'SEC Approves Three New Spot Ethereum ETFs for Trading',src:'Reuters',time:'5h ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop'},
+  {cat:'Bitcoin',title:'Bitcoin Eyes $70K as Institutional Demand Surges Post-Halving',src:'CoinDesk',time:'1h ago',img:'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&h=120&fit=crop'},
+  {cat:'Markets',title:'Crypto Market Cap Hits $2.4T — Altcoin Season Index Reaches 76',src:'CoinTelegraph',time:'2h ago',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&h=120&fit=crop'},
+  {cat:'DeFi',title:'Total Value Locked in DeFi Protocols Reaches New 2025 High at $415B',src:'The Block',time:'3h ago',img:'https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=120&h=120&fit=crop'},
+  {cat:'Regulation',title:'SEC Approves Three New Spot Ethereum ETFs for Trading in the US',src:'Reuters',time:'5h ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop'},
+  {cat:'Ethereum',title:'Ethereum Pectra Upgrade Successfully Deployed on Sepolia Testnet',src:'The Defiant',time:'6h ago',img:'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=120&h=120&fit=crop'},
   {cat:'Solana',title:'Solana Network Processes Record 50M Transactions in a Single Day',src:'Decrypt',time:'7h ago',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=120&h=120&fit=crop'},
-  {cat:'Markets',title:'Crypto Market Cap Hits $2.4T as Altcoin Season Begins',src:'CoinTelegraph',time:'9h ago',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&h=120&fit=crop'},
-  {cat:'Pyth',title:'Pyth Network Expands to 100+ Blockchains with Record Publisher Count',src:'Pyth Blog',time:'12h ago',img:'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=120&h=120&fit=crop'},
-  {cat:'Bitcoin',title:'MicroStrategy Adds Another 10,000 BTC to Corporate Treasury',src:'Bloomberg',time:'14h ago',img:'https://images.unsplash.com/photo-1568376794508-ae52c6ab3929?w=120&h=120&fit=crop'},
-  {cat:'DeFi',title:'Uniswap V4 Goes Live with Hooks Feature Enabling Custom Pool Logic',src:'DeFi Pulse',time:'1d ago',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=120&h=120&fit=crop'},
-  {cat:'Regulation',title:'Nigeria SEC Releases New Digital Asset Framework for Public Comment',src:'Nairametrics',time:'1d ago',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=120&h=120&fit=crop'},
-  {cat:'Markets',title:'XRP Breaks $1.50 Resistance After Court Filing Favors Ripple',src:'CryptoSlate',time:'1d ago',img:'https://images.unsplash.com/photo-1622186477895-f2af6a0f5a97?w=120&h=120&fit=crop'},
+  {cat:'Pyth',title:'Pyth Network Expands to 100+ Blockchains — Record 128 Publishers',src:'Pyth Blog',time:'8h ago',img:'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=120&h=120&fit=crop'},
+  {cat:'Bitcoin',title:'MicroStrategy Adds Another 10,000 BTC — Total Treasury Hits 214K',src:'Bloomberg',time:'10h ago',img:'https://images.unsplash.com/photo-1568376794508-ae52c6ab3929?w=120&h=120&fit=crop'},
+  {cat:'Markets',title:'XRP Breaks $1.50 Resistance as Court Filing Favors Ripple',src:'CryptoSlate',time:'11h ago',img:'https://images.unsplash.com/photo-1622186477895-f2af6a0f5a97?w=120&h=120&fit=crop'},
+  {cat:'DeFi',title:'Uniswap V4 Goes Live — Hooks Feature Enables Fully Custom AMM Logic',src:'DeFi Pulse',time:'12h ago',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=120&h=120&fit=crop'},
+  {cat:'Regulation',title:'Nigeria SEC Releases New Digital Asset Framework for Public Comment',src:'Nairametrics',time:'14h ago',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=120&h=120&fit=crop'},
+  {cat:'Ethereum',title:'Vitalik Buterin Proposes New Gas Fee Model to Improve L2 Economics',src:'Ethereum.org',time:'15h ago',img:'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=120&h=120&fit=crop'},
+  {cat:'Bitcoin',title:'BlackRock IBIT Bitcoin ETF Crosses $20B AUM in Record Time',src:'Financial Times',time:'16h ago',img:'https://images.unsplash.com/photo-1607944024060-0450380ddd33?w=120&h=120&fit=crop'},
+  {cat:'Solana',title:'Firedancer Validator Client Now Running on Solana Mainnet Beta',src:'Solana Foundation',time:'18h ago',img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=120&h=120&fit=crop'},
+  {cat:'Markets',title:'Dogecoin Surges 15% After Elon Musk Tweets DOGE Payment Integration',src:'CoinGecko',time:'20h ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop'},
+  {cat:'DeFi',title:'Aave V4 Architecture Revealed — Unified Liquidity Layer Across Chains',src:'DeFiLlama',time:'22h ago',img:'https://images.unsplash.com/photo-1559526324-593bc073d938?w=120&h=120&fit=crop'},
+  {cat:'Regulation',title:'EU MiCA Framework Fully Enforced — Exchanges Rush for Compliance',src:'Politico',time:'1d ago',img:'https://images.unsplash.com/photo-1529390079861-591de354faf5?w=120&h=120&fit=crop'},
+  {cat:'Ethereum',title:'EigenLayer Restaking TVL Surpasses $15B as New AVS Operators Join',src:'Bankless',time:'1d ago',img:'https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=120&h=120&fit=crop'},
+  {cat:'Pyth',title:'Coinbase Integrates Pyth Lazer for Real-Time Institutional Price Feeds',src:'Messari',time:'1d ago',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=120&h=120&fit=crop'},
+  {cat:'Bitcoin',title:'El Salvador Bitcoin Bond Oversubscribed 40x — $1B Raised Successfully',src:'Reuters',time:'1d ago',img:'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=120&fit=crop'},
+  {cat:'Markets',title:'Binance Reports $76B in Monthly Trading Volume — Spot Market Leads',src:'The Block',time:'2d ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop'},
+  {cat:'DeFi',title:'Hyperliquid DEX Hits $10B Daily Volume — Rivals Centralized Exchanges',src:'DeFiant',time:'2d ago',img:'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&h=120&fit=crop'},
+  {cat:'Solana',title:'Jupiter Exchange Launches Perpetuals with $2B in Open Interest',src:'CoinDesk',time:'2d ago',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&h=120&fit=crop'},
+  {cat:'Regulation',title:'IMF Warns Crypto Could Destabilize Emerging Market Currencies',src:'IMF Blog',time:'2d ago',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=120&h=120&fit=crop'},
+  {cat:'Pyth',title:'Pyth Community Hackathon 2025 Attracts 500+ Developer Teams Globally',src:'Pyth Network',time:'3d ago',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=120&h=120&fit=crop'},
 ];
 
 var newsFilter='all';
@@ -974,15 +1002,42 @@ function filterNews(f,btn){
   renderNews();
 }
 
+var NEWS_COLORS={'Bitcoin':'#f59e0b','Ethereum':'#6366f1','DeFi':'#8b5cf6','Regulation':'#ef4444','Markets':'#3b82f6','Solana':'#22c55e','Pyth':'#f43f5e','default':'#64748b'};
+
 function renderNews(){
   var items=newsFilter==='all'?NEWS:NEWS.filter(function(n){return n.cat===newsFilter;});
-  document.getElementById('newsList').innerHTML=items.length?items.map(function(n){
-    return'<div class="news-card">'
-      +'<div class="nc-img"><img src="'+n.img+'" onerror="this.style.display=\'none\'"></div>'
-      +'<div class="nc-body">'
-        +'<div class="nc-cat">'+n.cat+'</div>'
-        +'<div class="nc-title">'+n.title+'</div>'
-        +'<div class="nc-meta"><span class="nc-src">'+n.src+'</span> · '+n.time+'</div>'
+  document.getElementById('newsList').innerHTML=items.length?items.map(function(n,i){
+    var col=NEWS_COLORS[n.cat]||NEWS_COLORS.default;
+    var featured=i===0&&newsFilter==='all';
+    if(featured){
+      return'<div style="background:var(--s1);border:1px solid var(--b);border-radius:10px;margin-bottom:6px;overflow:hidden;cursor:pointer">'
+        +'<div style="height:130px;overflow:hidden;position:relative">'
+          +'<img src="'+n.img.replace('w=120&h=120','w=400&h=130')+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'
+          +'<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(7,9,16,0.85),transparent 50%)">'
+          +'</div>'
+          +'<div style="position:absolute;bottom:8px;left:10px">'
+            +'<span style="background:'+col+';color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:1px">'+n.cat.toUpperCase()+'</span>'
+          +'</div>'
+        +'</div>'
+        +'<div style="padding:10px 11px">'
+          +'<div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:5px">'+n.title+'</div>'
+          +'<div style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--muted)">'
+            +'<span style="font-weight:600;color:var(--sub)">'+n.src+'</span>· '+n.time
+          +'</div>'
+        +'</div>'
+      +'</div>';
+    }
+    return'<div style="display:flex;gap:9px;padding:9px 10px;background:var(--s1);border:1px solid var(--b);border-radius:9px;margin-bottom:5px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor=\'var(--b2)\'" onmouseout="this.style.borderColor=\'var(--b)\'">'
+      +'<div style="width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--s2)">'
+        +'<img src="'+n.img+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'
+      +'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">'
+          +'<span style="width:5px;height:5px;border-radius:50%;background:'+col+';flex-shrink:0;display:inline-block"></span>'
+          +'<span style="font-size:8px;font-weight:700;letter-spacing:1px;color:'+col+'">'+n.cat.toUpperCase()+'</span>'
+        +'</div>'
+        +'<div style="font-size:11px;font-weight:600;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+n.title+'</div>'
+        +'<div style="font-size:9px;color:var(--muted);margin-top:3px"><span style="font-weight:600;color:var(--sub)">'+n.src+'</span> · '+n.time+'</div>'
       +'</div>'
     +'</div>';
   }).join(''):'<div style="text-align:center;padding:30px;color:var(--sub);font-size:11px">No news in this category yet.</div>';
