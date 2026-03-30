@@ -388,7 +388,6 @@ animation:blink 2s infinite}
     </div>
   </div>
   <div class="hdr-right">
-    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
     <div class="bal-chip" id="balChip">💰 $<span id="balDisplay">1,000.00</span></div>
     <div class="wallet-chip" id="walletChip" onclick="openWallet()">Connect</div>
   </div>
@@ -613,7 +612,12 @@ animation:blink 2s infinite}
     <div class="ov-sub" id="ovSub">—</div>
     <div class="ov-pay" id="ovPay">—</div>
     <div class="ov-bal" id="ovBal">—</div>
-    <button class="ov-btn" onclick="closeResult()">Next Round →</button>
+    <button class="ov-btn" onclick="closeResult()">Continue →</button>
+    <button onclick="closeResult();goTab(4)" style="width:100%;padding:9px;border-radius:8px;
+      border:1px solid var(--b2);background:transparent;color:var(--sub);
+      font-size:11px;font-weight:600;cursor:pointer;margin-top:6px">
+      🎯 View My Bets
+    </button>
   </div>
 </div>
 
@@ -625,6 +629,36 @@ animation:blink 2s infinite}
     <div style="font-size:18px;font-weight:800;color:var(--dn2);margin-bottom:6px">Busted</div>
     <div style="font-size:10px;color:var(--sub);line-height:1.8;margin-bottom:16px">Demo balance gone.<br>No real money lost — start fresh!</div>
     <button class="ov-btn" onclick="resetBalance()">Start Fresh →</button>
+  </div>
+</div>
+
+<!-- NEWS DETAIL OVERLAY -->
+
+<div class="overlay" id="ovNews" onclick="if(event.target===this)closeNews()">
+  <div style="background:var(--s1);border:1px solid var(--b2);border-radius:16px;
+    width:94%;max-width:420px;max-height:80vh;overflow-y:auto;
+    animation:pop .3s cubic-bezier(0.34,1.56,0.64,1)">
+    <div id="ovNewsImg" style="height:160px;overflow:hidden;border-radius:16px 16px 0 0;position:relative">
+      <img id="ovNewsImgEl" src="" style="width:100%;height:100%;object-fit:cover">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(7,9,16,0.7),transparent 50%)"></div>
+      <button onclick="closeNews()" style="position:absolute;top:10px;right:10px;
+        width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);
+        color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+      <span id="ovNewsCat" style="position:absolute;bottom:10px;left:12px;
+        font-size:9px;font-weight:700;padding:3px 8px;border-radius:5px;letter-spacing:1px"></span>
+    </div>
+    <div style="padding:14px 14px 20px">
+      <div id="ovNewsTitle" style="font-size:15px;font-weight:800;color:var(--text);
+        line-height:1.4;margin-bottom:8px"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span id="ovNewsSrc" style="font-size:10px;font-weight:700;color:var(--blue2)"></span>
+        <span id="ovNewsTime" style="font-size:9px;color:var(--muted)"></span>
+      </div>
+      <div id="ovNewsBody" style="font-size:11px;color:var(--sub);line-height:1.8"></div>
+      <button onclick="closeNews()" style="width:100%;margin-top:16px;padding:11px;
+        border-radius:8px;border:1px solid var(--b2);background:transparent;
+        color:var(--sub);font-size:11px;font-weight:600;cursor:pointer">Close</button>
+    </div>
   </div>
 </div>
 
@@ -967,31 +1001,23 @@ function openFootballBet(el,home,away,homeOdds,awayOdds,side){
 // NEWS PAGE
 // ══════════════════════════════════════════════
 var NEWS=[
-  {cat:'Bitcoin',title:'Bitcoin Eyes $70K as Institutional Demand Surges Post-Halving',src:'CoinDesk',time:'1h ago',img:'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&h=120&fit=crop'},
-  {cat:'Markets',title:'Crypto Market Cap Hits $2.4T — Altcoin Season Index Reaches 76',src:'CoinTelegraph',time:'2h ago',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&h=120&fit=crop'},
-  {cat:'DeFi',title:'Total Value Locked in DeFi Protocols Reaches New 2025 High at $415B',src:'The Block',time:'3h ago',img:'https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=120&h=120&fit=crop'},
-  {cat:'Regulation',title:'SEC Approves Three New Spot Ethereum ETFs for Trading in the US',src:'Reuters',time:'5h ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop'},
-  {cat:'Ethereum',title:'Ethereum Pectra Upgrade Successfully Deployed on Sepolia Testnet',src:'The Defiant',time:'6h ago',img:'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=120&h=120&fit=crop'},
-  {cat:'Solana',title:'Solana Network Processes Record 50M Transactions in a Single Day',src:'Decrypt',time:'7h ago',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=120&h=120&fit=crop'},
-  {cat:'Pyth',title:'Pyth Network Expands to 100+ Blockchains — Record 128 Publishers',src:'Pyth Blog',time:'8h ago',img:'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=120&h=120&fit=crop'},
-  {cat:'Bitcoin',title:'MicroStrategy Adds Another 10,000 BTC — Total Treasury Hits 214K',src:'Bloomberg',time:'10h ago',img:'https://images.unsplash.com/photo-1568376794508-ae52c6ab3929?w=120&h=120&fit=crop'},
-  {cat:'Markets',title:'XRP Breaks $1.50 Resistance as Court Filing Favors Ripple',src:'CryptoSlate',time:'11h ago',img:'https://images.unsplash.com/photo-1622186477895-f2af6a0f5a97?w=120&h=120&fit=crop'},
-  {cat:'DeFi',title:'Uniswap V4 Goes Live — Hooks Feature Enables Fully Custom AMM Logic',src:'DeFi Pulse',time:'12h ago',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=120&h=120&fit=crop'},
-  {cat:'Regulation',title:'Nigeria SEC Releases New Digital Asset Framework for Public Comment',src:'Nairametrics',time:'14h ago',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=120&h=120&fit=crop'},
-  {cat:'Ethereum',title:'Vitalik Buterin Proposes New Gas Fee Model to Improve L2 Economics',src:'Ethereum.org',time:'15h ago',img:'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=120&h=120&fit=crop'},
-  {cat:'Bitcoin',title:'BlackRock IBIT Bitcoin ETF Crosses $20B AUM in Record Time',src:'Financial Times',time:'16h ago',img:'https://images.unsplash.com/photo-1607944024060-0450380ddd33?w=120&h=120&fit=crop'},
-  {cat:'Solana',title:'Firedancer Validator Client Now Running on Solana Mainnet Beta',src:'Solana Foundation',time:'18h ago',img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=120&h=120&fit=crop'},
-  {cat:'Markets',title:'Dogecoin Surges 15% After Elon Musk Tweets DOGE Payment Integration',src:'CoinGecko',time:'20h ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop'},
-  {cat:'DeFi',title:'Aave V4 Architecture Revealed — Unified Liquidity Layer Across Chains',src:'DeFiLlama',time:'22h ago',img:'https://images.unsplash.com/photo-1559526324-593bc073d938?w=120&h=120&fit=crop'},
-  {cat:'Regulation',title:'EU MiCA Framework Fully Enforced — Exchanges Rush for Compliance',src:'Politico',time:'1d ago',img:'https://images.unsplash.com/photo-1529390079861-591de354faf5?w=120&h=120&fit=crop'},
-  {cat:'Ethereum',title:'EigenLayer Restaking TVL Surpasses $15B as New AVS Operators Join',src:'Bankless',time:'1d ago',img:'https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=120&h=120&fit=crop'},
-  {cat:'Pyth',title:'Coinbase Integrates Pyth Lazer for Real-Time Institutional Price Feeds',src:'Messari',time:'1d ago',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=120&h=120&fit=crop'},
-  {cat:'Bitcoin',title:'El Salvador Bitcoin Bond Oversubscribed 40x — $1B Raised Successfully',src:'Reuters',time:'1d ago',img:'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=120&fit=crop'},
-  {cat:'Markets',title:'Binance Reports $76B in Monthly Trading Volume — Spot Market Leads',src:'The Block',time:'2d ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop'},
-  {cat:'DeFi',title:'Hyperliquid DEX Hits $10B Daily Volume — Rivals Centralized Exchanges',src:'DeFiant',time:'2d ago',img:'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&h=120&fit=crop'},
-  {cat:'Solana',title:'Jupiter Exchange Launches Perpetuals with $2B in Open Interest',src:'CoinDesk',time:'2d ago',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&h=120&fit=crop'},
-  {cat:'Regulation',title:'IMF Warns Crypto Could Destabilize Emerging Market Currencies',src:'IMF Blog',time:'2d ago',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=120&h=120&fit=crop'},
-  {cat:'Pyth',title:'Pyth Community Hackathon 2025 Attracts 500+ Developer Teams Globally',src:'Pyth Network',time:'3d ago',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=120&h=120&fit=crop'},
+  {cat:'Bitcoin',title:'Bitcoin Eyes $70K as Institutional Demand Surges Post-Halving',src:'CoinDesk',time:'1h ago',img:'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&h=120&fit=crop',body:'Bitcoin is approaching the $70,000 milestone as institutional demand accelerates following the April 2024 halving event. Major asset managers including BlackRock, Fidelity, and ARK Invest have seen record inflows into their spot Bitcoin ETFs over the past two weeks. Analysts say the reduced supply from the halving combined with institutional buying pressure could push BTC to new all-time highs by Q3 2025. On-chain data shows long-term holders are refusing to sell despite the price surge, further tightening supply.'},
+  {cat:'Markets',title:'Crypto Market Cap Hits $2.4T — Altcoin Season Index Reaches 76',src:'CoinTelegraph',time:'2h ago',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&h=120&fit=crop',body:'The total cryptocurrency market capitalization has hit $2.4 trillion as altcoin momentum picks up sharply. The Altcoin Season Index now stands at 76 out of 100, signaling that most altcoins are outperforming Bitcoin over the past 90 days. Solana, BNB, and XRP have led the charge with double-digit weekly gains. Traders are watching whether BTC dominance will fall below 50% — a key level that historically signals a full altcoin season.'},
+  {cat:'DeFi',title:'Total Value Locked in DeFi Protocols Reaches New 2025 High at $415B',src:'The Block',time:'3h ago',img:'https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=120&h=120&fit=crop',body:'Decentralized finance protocols have collectively locked over $415 billion in assets, setting a new record for 2025. Aave, Uniswap, and Lido Finance lead the rankings. The surge is driven by increasing real-world asset (RWA) tokenization and the launch of new yield strategies on Layer 2 networks. Ethereum Layer 2s including Arbitrum and Base now account for over 30% of total DeFi TVL, up from just 12% last year.'},
+  {cat:'Regulation',title:'SEC Approves Three New Spot Ethereum ETFs for Trading in the US',src:'Reuters',time:'5h ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop',body:'The US Securities and Exchange Commission has approved three new spot Ethereum ETFs, expanding investor access to the second-largest cryptocurrency. The approvals come just months after the landmark spot Bitcoin ETF approvals. Market analysts expect these ETFs to attract billions in institutional capital. The approval is seen as a major positive signal for the broader crypto market and may pave the way for other altcoin ETF applications currently pending review.'},
+  {cat:'Ethereum',title:'Ethereum Pectra Upgrade Successfully Deployed on Sepolia Testnet',src:'The Defiant',time:'6h ago',img:'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=120&h=120&fit=crop',body:'Ethereum\'s next major upgrade, Pectra, has been successfully deployed on the Sepolia testnet. The upgrade bundles several EIPs including EIP-7251 (raising the maximum validator balance) and EIP-7702 (smart account capabilities for EOAs). Developers say the upgrade significantly improves validator economics and lays the groundwork for a better user experience with smart contract wallets. Mainnet deployment is expected in mid-2025 pending further testing.'},
+  {cat:'Solana',title:'Solana Network Processes Record 50M Transactions in a Single Day',src:'Decrypt',time:'7h ago',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=120&h=120&fit=crop',body:'The Solana blockchain processed over 50 million transactions in a single 24-hour period, setting a new network record. The milestone was driven by heavy activity from meme coin trading, DePIN protocols, and the Jupiter DEX aggregator. Average transaction fees remained below $0.001, highlighting Solana\'s cost efficiency at scale. The Firedancer validator client, now partially live on mainnet, contributed to improved throughput and network stability during the peak load.'},
+  {cat:'Pyth',title:'Pyth Network Expands to 100+ Blockchains — Record 128 Publishers',src:'Pyth Blog',time:'8h ago',img:'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=120&h=120&fit=crop',body:'Pyth Network has reached a major milestone, now supporting over 100 blockchain networks with real-time price feeds from 128 institutional publishers. The oracle network provides sub-second price updates for crypto, equities, FX, and commodities. Notable new integrations include support for Berachain, Monad testnet, and MegaETH. Pyth\'s pull oracle model continues to gain traction as the preferred data source for DeFi protocols requiring high-frequency, low-latency price data.'},
+  {cat:'Bitcoin',title:'MicroStrategy Adds Another 10,000 BTC — Total Treasury Hits 214K',src:'Bloomberg',time:'10h ago',img:'https://images.unsplash.com/photo-1568376794508-ae52c6ab3929?w=120&h=120&fit=crop',body:'MicroStrategy has purchased an additional 10,000 Bitcoin, bringing its total corporate treasury to over 214,000 BTC worth approximately $14.4 billion at current prices. The company funded the purchase through a combination of convertible note offerings and equity sales. CEO Michael Saylor described the acquisition as a continuation of the company\'s Bitcoin Standard strategy. MicroStrategy now holds approximately 1% of the total Bitcoin supply, making it the largest corporate holder of the cryptocurrency.'},
+  {cat:'Markets',title:'XRP Breaks $1.50 Resistance as Court Filing Favors Ripple',src:'CryptoSlate',time:'11h ago',img:'https://images.unsplash.com/photo-1622186477895-f2af6a0f5a97?w=120&h=120&fit=crop',body:'XRP surged past the $1.50 resistance level after a court filing in the ongoing SEC vs Ripple case appeared to favor the crypto company. Legal analysts suggest the filing significantly reduces the risk of XRP being classified as a security. The price move was accompanied by a 3x surge in trading volume. Many traders are now setting targets of $2.00 and $3.50 for XRP, levels last seen during the 2021 bull run.'},
+  {cat:'DeFi',title:'Uniswap V4 Goes Live — Hooks Feature Enables Fully Custom AMM Logic',src:'DeFi Pulse',time:'12h ago',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=120&h=120&fit=crop',body:'Uniswap V4 has launched on Ethereum mainnet, introducing the groundbreaking Hooks architecture that allows developers to attach custom logic to liquidity pool operations. This enables dynamic fees, on-chain limit orders, TWAP oracles, and novel yield strategies all within a single pool contract. The upgrade also uses a singleton contract architecture reducing gas costs by up to 99% for multi-hop swaps. Over 200 projects have already announced V4 hook integrations.'},
+  {cat:'Regulation',title:'Nigeria SEC Releases New Digital Asset Framework for Public Comment',src:'Nairametrics',time:'14h ago',img:'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=120&h=120&fit=crop',body:'The Securities and Exchange Commission of Nigeria has released a comprehensive digital asset regulatory framework for public consultation. The framework covers crypto exchanges, stablecoins, NFTs, and DeFi protocols operating within Nigeria. It proposes a tiered licensing system based on asset type and transaction volume. Industry stakeholders have 60 days to submit comments. The move signals Nigeria\'s intent to become a leading crypto-friendly jurisdiction in Africa, following strong grassroots adoption of Bitcoin and stablecoins.'},
+  {cat:'Ethereum',title:'Vitalik Buterin Proposes New Gas Fee Model to Improve L2 Economics',src:'Ethereum.org',time:'15h ago',img:'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=120&h=120&fit=crop',body:'Ethereum co-founder Vitalik Buterin has published a new proposal to reform the Layer 2 gas fee model. The proposal aims to make fees more predictable and fair for users transacting on L2 networks while also improving how revenue is shared between L2s and Ethereum mainnet. The changes could significantly reduce the cost of using popular L2 networks like Arbitrum, Optimism, and Base during periods of high congestion. Community feedback has been broadly positive.'},
+  {cat:'Bitcoin',title:'BlackRock IBIT Bitcoin ETF Crosses $20B AUM in Record Time',src:'Financial Times',time:'16h ago',img:'https://images.unsplash.com/photo-1607944024060-0450380ddd33?w=120&h=120&fit=crop',body:'BlackRock\'s iShares Bitcoin Trust (IBIT) has surpassed $20 billion in assets under management, making it one of the fastest-growing ETFs in financial history. The fund reached this milestone in less than 12 months since launch, outpacing the growth of BlackRock\'s own gold ETF. Institutional investors including pension funds and sovereign wealth funds have been identified as major buyers. The success of IBIT has prompted several other traditional asset managers to accelerate their own Bitcoin product launches.'},
+  {cat:'Solana',title:'Firedancer Validator Client Now Running on Solana Mainnet Beta',src:'Solana Foundation',time:'18h ago',img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=120&h=120&fit=crop',body:'Jump Crypto\'s Firedancer validator client has entered mainnet beta on Solana, marking a pivotal moment for network decentralization. Firedancer is a completely independent reimplementation of the Solana validator in C, designed to process over 1 million transactions per second. Having multiple independent validator clients reduces the risk of network-wide outages caused by software bugs. Several major validators have already transitioned to Firedancer with strong early performance results.'},
+  {cat:'Markets',title:'Dogecoin Surges 15% After Elon Musk Tweets DOGE Payment Integration',src:'CoinGecko',time:'20h ago',img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&h=120&fit=crop',body:'Dogecoin jumped 15% in under an hour after Elon Musk tweeted about a new DOGE payment integration for Tesla\'s online merchandise store. The move reignites speculation about X (formerly Twitter) eventually adopting DOGE for payments on its platform. Trading volume for DOGE spiked to $8 billion in 24 hours, its highest since 2021. Despite the rally, on-chain metrics show most of the buying was driven by retail traders, with derivatives markets showing elevated funding rates.'},
+  {cat:'Pyth',title:'Coinbase Integrates Pyth Lazer for Real-Time Institutional Price Feeds',src:'Messari',time:'1d ago',img:'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=120&h=120&fit=crop',body:'Coinbase has integrated Pyth Network\'s ultra-low-latency Lazer product to power institutional-grade price feeds across its trading infrastructure. Pyth Lazer delivers price updates at 1ms intervals, making it suitable for high-frequency trading applications and derivatives protocols. This marks one of the first major centralized exchange integrations of a decentralized oracle product. The partnership validates Pyth\'s strategy of bridging traditional financial institutions with decentralized data infrastructure.'},
+  {cat:'Pyth',title:'Pyth Community Hackathon 2025 Attracts 500+ Developer Teams Globally',src:'Pyth Network',time:'3d ago',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=120&h=120&fit=crop',body:'The Pyth Community Hackathon 2025 has attracted over 500 developer teams from more than 60 countries, making it one of the largest oracle-focused hackathons in history. Projects span DeFi, GameFi, prediction markets, and real-world asset applications. The $50,000 prize pool has drawn entries from experienced builders and first-time hackathon participants alike. Judges will evaluate submissions on technical innovation, proper use of Pyth price feeds, and real-world utility.'},
 ];
 
 var newsFilter='all';
@@ -1002,19 +1028,34 @@ function filterNews(f,btn){
   renderNews();
 }
 
+function openNews(i){
+  var n=NEWS[i];if(!n)return;
+  var col=NEWS_COLORS[n.cat]||NEWS_COLORS.default;
+  document.getElementById('ovNewsImgEl').src=n.img.replace('w=120&h=120','w=400&h=160');
+  document.getElementById('ovNewsCat').textContent=n.cat.toUpperCase();
+  document.getElementById('ovNewsCat').style.background=col;
+  document.getElementById('ovNewsCat').style.color='#fff';
+  document.getElementById('ovNewsTitle').textContent=n.title;
+  document.getElementById('ovNewsSrc').textContent=n.src;
+  document.getElementById('ovNewsTime').textContent=n.time;
+  document.getElementById('ovNewsBody').textContent=n.body||'Full article coming soon.';
+  document.getElementById('ovNews').classList.add('show');
+}
+function closeNews(){document.getElementById('ovNews').classList.remove('show');}
+
 var NEWS_COLORS={'Bitcoin':'#f59e0b','Ethereum':'#6366f1','DeFi':'#8b5cf6','Regulation':'#ef4444','Markets':'#3b82f6','Solana':'#22c55e','Pyth':'#f43f5e','default':'#64748b'};
 
 function renderNews(){
   var items=newsFilter==='all'?NEWS:NEWS.filter(function(n){return n.cat===newsFilter;});
   document.getElementById('newsList').innerHTML=items.length?items.map(function(n,i){
+    var realIdx=NEWS.indexOf(n);
     var col=NEWS_COLORS[n.cat]||NEWS_COLORS.default;
     var featured=i===0&&newsFilter==='all';
     if(featured){
-      return'<div style="background:var(--s1);border:1px solid var(--b);border-radius:10px;margin-bottom:6px;overflow:hidden;cursor:pointer">'
+      return'<div style="background:var(--s1);border:1px solid var(--b);border-radius:10px;margin-bottom:6px;overflow:hidden;cursor:pointer" onclick="openNews('+realIdx+')">'
         +'<div style="height:130px;overflow:hidden;position:relative">'
           +'<img src="'+n.img.replace('w=120&h=120','w=400&h=130')+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'
-          +'<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(7,9,16,0.85),transparent 50%)">'
-          +'</div>'
+          +'<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(7,9,16,0.85),transparent 50%)"></div>'
           +'<div style="position:absolute;bottom:8px;left:10px">'
             +'<span style="background:'+col+';color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:1px">'+n.cat.toUpperCase()+'</span>'
           +'</div>'
@@ -1027,7 +1068,7 @@ function renderNews(){
         +'</div>'
       +'</div>';
     }
-    return'<div style="display:flex;gap:9px;padding:9px 10px;background:var(--s1);border:1px solid var(--b);border-radius:9px;margin-bottom:5px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor=\'var(--b2)\'" onmouseout="this.style.borderColor=\'var(--b)\'">'
+    return'<div style="display:flex;gap:9px;padding:9px 10px;background:var(--s1);border:1px solid var(--b);border-radius:9px;margin-bottom:5px;cursor:pointer;transition:border-color .15s" onclick="openNews('+realIdx+')" onmouseover="this.style.borderColor=\'var(--b2)\'" onmouseout="this.style.borderColor=\'var(--b)\'">'
       +'<div style="width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--s2)">'
         +'<img src="'+n.img+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'
       +'</div>'
