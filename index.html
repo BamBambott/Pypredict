@@ -29,10 +29,14 @@ body.light{
 –text:#0f172a;–sub:#64748b;–muted:#94a3b8;–dim:#e2e8f0;
 –gold3:rgba(245,158,11,0.1);–blue3:rgba(59,130,246,0.08);
 –up3:rgba(34,197,94,0.1);–dn3:rgba(239,68,68,0.1);
+–hdr-bg:rgba(248,250,252,0.97);
+–nav-bg:rgba(248,250,252,0.97);
 }
-body.light header{background:rgba(248,250,252,0.95)}
-body.light .bnav{background:rgba(248,250,252,0.97)}
+body.light .scroll-area{background:var(–bg)}
 body.light .ticker-wrap{background:#f1f5f9}
+body.light .overlay>.ov-card,body.light .overlay>.bust-card{background:#fff;border-color:rgba(0,0,0,0.12)}
+body.light .pp-banner.open{background:rgba(59,130,246,0.06)}
+body.light .pp-banner.locked{background:rgba(245,158,11,0.06)}
 
 .theme-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(–b2);
 background:var(–s2);cursor:pointer;font-size:14px;display:flex;align-items:center;
@@ -55,7 +59,7 @@ font-family:var(–fm);font-size:10px;border-right:1px solid var(–b)}
 
 /* ── HEADER ── */
 header{display:flex;align-items:center;justify-content:space-between;
-padding:0 14px;height:48px;background:rgba(7,9,16,0.95);
+padding:0 14px;height:48px;background:var(–hdr-bg,rgba(7,9,16,0.95));
 border-bottom:1px solid var(–b);backdrop-filter:blur(20px);
 position:sticky;top:0;z-index:200}
 .brand{display:flex;align-items:center;gap:8px}
@@ -76,7 +80,7 @@ font-size:10px;color:var(–purple2);cursor:pointer;font-weight:600}
 
 /* ── BOTTOM NAV ── */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;
-display:flex;background:rgba(7,9,16,0.97);
+display:flex;background:var(–nav-bg,rgba(7,9,16,0.97));
 border-top:1px solid var(–b);backdrop-filter:blur(20px);
 padding-bottom:env(safe-area-inset-bottom)}
 .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;
@@ -143,6 +147,7 @@ transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:1p
 .mc-btn-yes:hover{background:rgba(34,197,94,0.2);transform:translateY(-1px)}
 .mc-btn-no{background:var(–dn3);color:var(–dn2);border:1px solid rgba(239,68,68,0.2)}
 .mc-btn-no:hover{background:rgba(239,68,68,0.2);transform:translateY(-1px)}
+.mc-btns button{position:relative;z-index:2}
 .mc-btn span{font-size:8px;font-weight:500;opacity:0.7;font-family:var(–fm)}
 
 /* ── CRYPTO PAGE ── */
@@ -726,7 +731,7 @@ function renderMarkets(){
       +'</div>'
       +'<div class="mc-btns">'
         +'<button class="mc-btn mc-btn-yes" onclick="event.stopPropagation();openMktBet(\''+m.id+'\',\'yes\')">YES <span>'+m.yes+'¢</span></button>'
-        +'<button class="mc-btn mc-btn-no" onclick="event.stopPropagation();openMktBet(\''+m.id+'\',\'no\')"">NO <span>'+(100-m.yes)+'¢</span></button>'
+        +'<button class="mc-btn mc-btn-no" onclick="event.stopPropagation();openMktBet(\''+m.id+'\',\'no\')">NO <span>'+(100-m.yes)+'¢</span></button>'
       +'</div>'
     +'</div>';
   }).join('');
@@ -1267,32 +1272,70 @@ function resetBalance(){
 }
 
 // ══════════════════════════════════════════════
-// WALLET
+// WALLET — Real connections
 // ══════════════════════════════════════════════
 var wConnected=false,wName='',wAddr='';
+
 function openWallet(){
   document.getElementById('wovOptions').style.display=wConnected?'none':'block';
   document.getElementById('wovConnected').style.display=wConnected?'block':'none';
   document.getElementById('wovTitle').textContent=wConnected?'Wallet Connected':'Connect Wallet';
-  if(wConnected){document.getElementById('wovName').textContent=wName;document.getElementById('wovAddr').textContent=wAddr;}
+  document.getElementById('wovSub').textContent=wConnected?'':'Choose your wallet';
+  if(wConnected){
+    document.getElementById('wovName').textContent=wName;
+    document.getElementById('wovAddr').textContent=wAddr;
+  }
   document.getElementById('ovWallet').classList.add('show');
 }
 function closeWallet(){document.getElementById('ovWallet').classList.remove('show');}
-function doConnect(name){
-  wConnected=true;wName=name;
-  var c='0123456789abcdef';var a='0x';
-  for(var i=0;i<4;i++)a+=c[Math.floor(Math.random()*16)];
-  a+='...';for(var i=0;i<4;i++)a+=c[Math.floor(Math.random()*16)];
-  wAddr=a;
-  var btn=document.getElementById('walletChip');
-  btn.textContent=a;btn.classList.add('on');
-  document.getElementById('wovOptions').style.display='none';
-  document.getElementById('wovConnected').style.display='block';
-  document.getElementById('wovTitle').textContent='Connected';
-  document.getElementById('wovName').textContent=name;
-  document.getElementById('wovAddr').textContent=a;
-  setTimeout(closeWallet,1500);
+
+async function doConnect(name){
+  try{
+    var addr='';
+    if(name==='Phantom'){
+      var sol=window.solana||window.phantom?.solana;
+      if(sol&&sol.isPhantom){
+        var resp=await sol.connect();
+        addr=resp.publicKey.toString();
+      } else {
+        // Not installed - open install page
+        window.open('https://phantom.app','_blank');
+        closeWallet();return;
+      }
+    } else if(name==='MetaMask'){
+      var eth=window.ethereum;
+      if(eth&&eth.isMetaMask){
+        var accounts=await eth.request({method:'eth_requestAccounts'});
+        addr=accounts[0];
+      } else {
+        window.open('https://metamask.io','_blank');
+        closeWallet();return;
+      }
+    } else {
+      // WalletConnect — demo mode (no WC lib loaded)
+      var c='0123456789abcdef';addr='0x';
+      for(var i=0;i<4;i++)addr+=c[Math.floor(Math.random()*16)];
+      addr+='...';
+      for(var i=0;i<4;i++)addr+=c[Math.floor(Math.random()*16)];
+    }
+    // Short display
+    var display=addr.length>12?addr.slice(0,6)+'...'+addr.slice(-4):addr;
+    wConnected=true;wName=name;wAddr=display;
+    var btn=document.getElementById('walletChip');
+    btn.textContent=display;btn.classList.add('on');
+    document.getElementById('wovOptions').style.display='none';
+    document.getElementById('wovConnected').style.display='block';
+    document.getElementById('wovTitle').textContent='✅ Connected';
+    document.getElementById('wovSub').textContent='';
+    document.getElementById('wovName').textContent=name;
+    document.getElementById('wovAddr').textContent=display;
+    setTimeout(closeWallet,1800);
+  } catch(e){
+    console.error('Wallet connect error:',e);
+    alert('Could not connect: '+(e.message||'User rejected'));
+  }
 }
+
 function doDisconnect(){
   wConnected=false;wName='';wAddr='';
   var btn=document.getElementById('walletChip');
