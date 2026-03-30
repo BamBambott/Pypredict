@@ -757,21 +757,21 @@ ASSETS.forEach(function(a){prices[a.sym]={p:0,prev:0,open:0,hist:[],high:0,low:I
 // MARKETS DATA
 // ══════════════════════════════════════════════
 var MARKETS=[
-  {id:'m1',cat:'crypto',icon:'🪙',title:'Will BTC close above $70,000 by end of April 2025?',yes:72,vol:'$4.2M',ends:'Apr 30',color:'#f59e0b'},
-  {id:'m2',cat:'crypto',icon:'🪙',title:'Will ETH flip BTC in market cap this year?',yes:18,vol:'$1.8M',ends:'Dec 31',color:'#3b82f6'},
-  {id:'m3',cat:'crypto',icon:'🪙',title:'Will Solana surpass $200 before May 2025?',yes:45,vol:'$890K',ends:'May 1',color:'#8b5cf6'},
-  {id:'m4',cat:'world',icon:'🌍',title:'Will the US Federal Reserve cut rates in Q2 2025?',yes:61,vol:'$12.1M',ends:'Jun 30',color:'#22c55e'},
-  {id:'m5',cat:'world',icon:'🌍',title:'Will global inflation drop below 3% by end of 2025?',yes:38,vol:'$5.6M',ends:'Dec 31',color:'#06b6d4'},
-  {id:'m6',cat:'world',icon:'🌍',title:'Will AI regulation bill pass in the EU before July 2025?',yes:54,vol:'$3.3M',ends:'Jul 1',color:'#f97316'},
-  {id:'m7',cat:'world',icon:'🌍',title:'Will crude oil price exceed $100/barrel in 2025?',yes:29,vol:'$7.2M',ends:'Dec 31',color:'#84cc16'},
-  {id:'m8',cat:'football',icon:'⚽',title:'Manchester City vs Arsenal — City to win?',yes:58,vol:'$2.1M',ends:'Apr 2',color:'#06b6d4',live:true},
-  {id:'m9',cat:'football',icon:'⚽',title:'Real Madrid vs Barcelona — El Clásico — Madrid win?',yes:49,vol:'$8.4M',ends:'Apr 5',color:'#f5f5f5'},
-  {id:'m10',cat:'football',icon:'⚽',title:'Champions League: Will a Premier League team win 2024/25?',yes:67,vol:'$5.9M',ends:'Jun 1',color:'#3b82f6'},
-  {id:'m11',cat:'football',icon:'⚽',title:'Premier League: Will Arsenal win the title 2024/25?',yes:41,vol:'$3.7M',ends:'May 25',color:'#ef4444'},
-  {id:'m12',cat:'football',icon:'⚽',title:'PSG vs Bayern Munich — Will game have over 2.5 goals?',yes:71,vol:'$1.2M',ends:'Apr 9',color:'#3b82f6'},
-  {id:'m13',cat:'politics',icon:'🏛️',title:'Will Trump sign a crypto regulation bill in 2025?',yes:63,vol:'$9.8M',ends:'Dec 31',color:'#f59e0b'},
-  {id:'m14',cat:'politics',icon:'🏛️',title:'Will the UK call a snap election in 2025?',yes:14,vol:'$2.3M',ends:'Dec 31',color:'#3b82f6'},
-  {id:'m15',cat:'politics',icon:'🏛️',title:'Will Nigeria pass a new crypto framework in 2025?',yes:47,vol:'$680K',ends:'Dec 31',color:'#22c55e'},
+  {id:'m1',cat:'crypto',icon:'🪙',title:'Will BTC hit $100,000 before end of June 2026?',yes:64,vol:'$9.2M',ends:'Jun 30, 2026',color:'#f59e0b'},
+  {id:'m2',cat:'crypto',icon:'🪙',title:'Will ETH surpass $4,000 before July 2026?',yes:52,vol:'$4.8M',ends:'Jul 1, 2026',color:'#3b82f6'},
+  {id:'m3',cat:'crypto',icon:'🪙',title:'Will Solana reach $300 in Q2 2026?',yes:38,vol:'$2.1M',ends:'Jun 30, 2026',color:'#8b5cf6'},
+  {id:'m4',cat:'world',icon:'🌍',title:'Will the US Fed cut interest rates before July 2026?',yes:71,vol:'$18.4M',ends:'Jul 1, 2026',color:'#22c55e'},
+  {id:'m5',cat:'world',icon:'🌍',title:'Will global inflation fall below 2.5% by end of 2026?',yes:44,vol:'$6.1M',ends:'Dec 31, 2026',color:'#06b6d4'},
+  {id:'m6',cat:'world',icon:'🌍',title:'Will the US pass a stablecoin regulation bill in 2026?',yes:67,vol:'$11.3M',ends:'Dec 31, 2026',color:'#f97316'},
+  {id:'m7',cat:'world',icon:'🌍',title:'Will crude oil exceed $90/barrel before September 2026?',yes:33,vol:'$5.7M',ends:'Sep 1, 2026',color:'#84cc16'},
+  {id:'m8',cat:'football',icon:'⚽',title:'Manchester City vs Chelsea — City to win? (Apr 5)',yes:61,vol:'$3.2M',ends:'Apr 5, 2026',color:'#06b6d4',live:true},
+  {id:'m9',cat:'football',icon:'⚽',title:'Real Madrid vs Atletico Madrid — Madrid win? (Apr 6)',yes:54,vol:'$7.1M',ends:'Apr 6, 2026',color:'#f5f5f5'},
+  {id:'m10',cat:'football',icon:'⚽',title:'Champions League: Will Arsenal reach the 2026 final?',yes:48,vol:'$4.4M',ends:'May 30, 2026',color:'#3b82f6'},
+  {id:'m11',cat:'football',icon:'⚽',title:'Premier League: Will Liverpool win the 2025/26 title?',yes:55,vol:'$6.8M',ends:'May 24, 2026',color:'#ef4444'},
+  {id:'m12',cat:'football',icon:'⚽',title:'Bayern Munich vs Inter Milan UCL — Over 2.5 goals?',yes:69,vol:'$1.9M',ends:'Apr 15, 2026',color:'#3b82f6'},
+  {id:'m13',cat:'politics',icon:'🏛️',title:'Will Trump sign a Bitcoin Strategic Reserve bill in 2026?',yes:58,vol:'$14.2M',ends:'Dec 31, 2026',color:'#f59e0b'},
+  {id:'m14',cat:'politics',icon:'🏛️',title:'Will there be a G20 global crypto framework by end of 2026?',yes:31,vol:'$3.8M',ends:'Dec 31, 2026',color:'#3b82f6'},
+  {id:'m15',cat:'politics',icon:'🏛️',title:'Will Nigeria launch a CBDC on a public blockchain in 2026?',yes:42,vol:'$920K',ends:'Dec 31, 2026',color:'#22c55e'},
 ];
 
 var mktFilter='all';
@@ -936,14 +936,14 @@ function clearBetHistory(){
 // FOOTBALL PAGE
 // ══════════════════════════════════════════════
 var MATCHES=[
-  {home:'Manchester City',away:'Arsenal',league:'Premier League',date:'Apr 2 · 20:00',homeOdds:58,awayOdds:42,homeIcon:'🔵',awayIcon:'🔴',live:true,score:'1-1'},
-  {home:'Real Madrid',away:'Barcelona',league:'La Liga',date:'Apr 5 · 21:00',homeOdds:49,awayOdds:51,homeIcon:'⚪',awayIcon:'🔴'},
-  {home:'Bayern Munich',away:'PSG',league:'UCL QF',date:'Apr 9 · 20:00',homeOdds:55,awayOdds:45,homeIcon:'🔴',awayIcon:'🔵'},
-  {home:'Liverpool',away:'Chelsea',league:'Premier League',date:'Apr 12 · 17:30',homeOdds:62,awayOdds:38,homeIcon:'🔴',awayIcon:'🔵'},
-  {home:'Inter Milan',away:'AC Milan',league:'Serie A',date:'Apr 14 · 20:45',homeOdds:53,awayOdds:47,homeIcon:'⚫',awayIcon:'🔴'},
-  {home:'Juventus',away:'Napoli',league:'Serie A',date:'Apr 17 · 20:45',homeOdds:48,awayOdds:52,homeIcon:'⚪',awayIcon:'🔵'},
-  {home:'Dortmund',away:'Leipzig',league:'Bundesliga',date:'Apr 19 · 18:30',homeOdds:56,awayOdds:44,homeIcon:'🟡',awayIcon:'🔴'},
-  {home:'Atlético Madrid',away:'Sevilla',league:'La Liga',date:'Apr 21 · 21:00',homeOdds:67,awayOdds:33,homeIcon:'🔴',awayIcon:'🟡'},
+  {home:'Manchester City',away:'Chelsea',league:'Premier League',date:'Apr 5, 2026 · 15:00',homeOdds:61,awayOdds:39,homeIcon:'🔵',awayIcon:'🔵',live:true,score:'0-0'},
+  {home:'Real Madrid',away:'Atletico Madrid',league:'La Liga',date:'Apr 6, 2026 · 21:00',homeOdds:54,awayOdds:46,homeIcon:'⚪',awayIcon:'🔴'},
+  {home:'Arsenal',away:'Inter Milan',league:'UCL QF',date:'Apr 8, 2026 · 20:00',homeOdds:48,awayOdds:52,homeIcon:'🔴',awayIcon:'⚫'},
+  {home:'Liverpool',away:'Tottenham',league:'Premier League',date:'Apr 13, 2026 · 16:30',homeOdds:65,awayOdds:35,homeIcon:'🔴',awayIcon:'⚪'},
+  {home:'Barcelona',away:'Sevilla',league:'La Liga',date:'Apr 14, 2026 · 21:00',homeOdds:72,awayOdds:28,homeIcon:'🔴',awayIcon:'⚪'},
+  {home:'Bayern Munich',away:'Dortmund',league:'Bundesliga',date:'Apr 18, 2026 · 18:30',homeOdds:58,awayOdds:42,homeIcon:'🔴',awayIcon:'🟡'},
+  {home:'PSG',away:'Lyon',league:'Ligue 1',date:'Apr 19, 2026 · 21:00',homeOdds:74,awayOdds:26,homeIcon:'🔵',awayIcon:'🔴'},
+  {home:'Napoli',away:'Juventus',league:'Serie A',date:'Apr 20, 2026 · 20:45',homeOdds:44,awayOdds:56,homeIcon:'🔵',awayIcon:'⚪'},
 ];
 
 function renderFootball(){
