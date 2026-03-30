@@ -20,7 +20,24 @@
   --f:'Outfit',sans-serif;--fm:'Geist Mono',monospace;--fs:'Instrument Serif',serif;
 }
 html,body{width:100%;height:100%;background:var(--bg);color:var(--text);
-  font-family:var(--f);font-size:13px;overflow:hidden}
+  font-family:var(--f);font-size:13px;overflow:hidden;transition:background .2s,color .2s}
+
+/* ── LIGHT MODE ── */
+body.light{
+–bg:#f8fafc;–s1:#ffffff;–s2:#f1f5f9;–s3:#e2e8f0;
+–b:rgba(0,0,0,0.08);–b2:rgba(0,0,0,0.14);
+–text:#0f172a;–sub:#64748b;–muted:#94a3b8;–dim:#e2e8f0;
+–gold3:rgba(245,158,11,0.1);–blue3:rgba(59,130,246,0.08);
+–up3:rgba(34,197,94,0.1);–dn3:rgba(239,68,68,0.1);
+}
+body.light header{background:rgba(248,250,252,0.95)}
+body.light .bnav{background:rgba(248,250,252,0.97)}
+body.light .ticker-wrap{background:#f1f5f9}
+
+.theme-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(–b2);
+background:var(–s2);cursor:pointer;font-size:14px;display:flex;align-items:center;
+justify-content:center;transition:all .15s}
+.theme-btn:hover{border-color:var(–blue2)}
 
 /* ── TICKER ── */
 .ticker-wrap{height:28px;background:var(–s1);border-bottom:1px solid var(–b);
@@ -355,6 +372,7 @@ animation:blink 2s infinite}
     </div>
   </div>
   <div class="hdr-right">
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
     <div class="bal-chip" id="balChip">💰 $<span id="balDisplay">1,000.00</span></div>
     <div class="wallet-chip" id="walletChip" onclick="openWallet()">Connect</div>
   </div>
@@ -375,6 +393,14 @@ animation:blink 2s infinite}
       <button class="filter-btn" onclick="filterMkts('politics',this)">🏛️ Politics</button>
     </div>
     <div id="mktList"></div>
+    <!-- BET HISTORY -->
+    <div id="betHistoryWrap" style="display:none;margin-top:12px">
+      <div class="sec-hd">
+        <span class="sec-title">Your Bets</span>
+        <span class="sec-link" onclick="clearBetHistory()">Clear</span>
+      </div>
+      <div id="betHistoryList"></div>
+    </div>
   </div>
 
   <!-- ══ CRYPTO PAGE ══ -->
@@ -676,6 +702,8 @@ var MARKETS=[
 
 var mktFilter='all';
 var mktBets={};
+var betHistory=[];
+var isLight=false;
 
 function renderMarkets(){
   var list=MARKETS.filter(function(m){return mktFilter==='all'||m.cat===mktFilter;});
@@ -749,16 +777,53 @@ function mbPlace(side){
   balance-=amt;
   updateBalDisplay();
   closeMktBet();
-  // Show confirmation
   var odds=side==='yes'?curMkt.yes:100-curMkt.yes;
   var win=(amt/(odds/100)).toFixed(2);
+  // Record in history
+  betHistory.unshift({
+    title:curMkt.title,cat:curMkt.cat,side:side,
+    odds:odds,amt:amt,win:parseFloat(win),
+    time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})
+  });
+  if(betHistory.length>20)betHistory.pop();
+  renderBetHistory();
+  // Show confirmation
   document.getElementById('ovEmoji').textContent='📌';
   document.getElementById('ovTitle').textContent='Bet Placed!';
-  document.getElementById('ovSub').textContent=curMkt.title.substring(0,60)+'...\n'+side.toUpperCase()+' @ '+odds+'¢';
-  document.getElementById('ovPay').textContent='Potential: $'+win;
+  document.getElementById('ovSub').textContent=curMkt.title.substring(0,55)+'...\n'+side.toUpperCase()+' @ '+odds+'¢';
+  document.getElementById('ovPay').textContent='Potential win: $'+win;
   document.getElementById('ovPay').style.color='var(--up2)';
   document.getElementById('ovBal').textContent='Balance: $'+fmtMoney(balance);
   document.getElementById('ovResult').classList.add('show');
+}
+
+function renderBetHistory(){
+  var wrap=document.getElementById('betHistoryWrap');
+  var list=document.getElementById('betHistoryList');
+  if(!betHistory.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  list.innerHTML=betHistory.map(function(b){
+    var sideCol=b.side==='yes'?'var(--up2)':'var(--dn2)';
+    var sideBg=b.side==='yes'?'var(--up3)':'var(--dn3)';
+    return'<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;'
+      +'background:var(--s1);border:1px solid var(--b);border-radius:7px;margin-bottom:5px">'
+      +'<div style="padding:2px 7px;border-radius:4px;background:'+sideBg+';color:'+sideCol+';'
+        +'font-size:9px;font-weight:700;flex-shrink:0">'+b.side.toUpperCase()+'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;'
+          +'overflow:hidden;text-overflow:ellipsis">'+b.title+'</div>'
+        +'<div style="font-size:9px;color:var(--muted);margin-top:1px">'+b.cat.toUpperCase()+' · '+b.time+'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0">'
+        +'<div style="font-size:10px;font-weight:700;font-family:var(--fm);color:var(--text)">$'+b.amt.toFixed(2)+'</div>'
+        +'<div style="font-size:9px;color:var(--up2);font-family:var(--fm)">→ $'+b.win.toFixed(2)+'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function clearBetHistory(){
+  betHistory=[];renderBetHistory();
 }
 
 // ══════════════════════════════════════════════
@@ -1245,6 +1310,15 @@ function goTab(i){
     document.getElementById('nav'+j).classList.toggle('active',j===i);
   });
   document.getElementById('scrollArea').scrollTop=0;
+}
+
+// ══════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════
+function toggleTheme(){
+  isLight=!isLight;
+  document.body.classList.toggle('light',isLight);
+  document.getElementById('themeBtn').textContent=isLight?'🌑':'🌙';
 }
 
 // ══════════════════════════════════════════════
