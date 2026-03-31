@@ -433,6 +433,20 @@ animation:blink 2s infinite}
         <div style="font-size:14px;font-weight:800;color:var(--up2)">3 🟢</div>
       </div>
     </div>
+    <!-- Scrolling news ticker -->
+    <div id="newsTicker" style="height:26px;background:rgba(59,130,246,0.06);
+      border:1px solid rgba(59,130,246,0.12);border-radius:8px;
+      overflow:hidden;position:relative;margin-bottom:10px;display:flex;align-items:center">
+      <div style="flex-shrink:0;padding:0 10px;font-size:8px;font-weight:800;
+        letter-spacing:1.5px;color:var(--blue2);border-right:1px solid rgba(59,130,246,0.2);
+        height:100%;display:flex;align-items:center;background:rgba(59,130,246,0.08);
+        white-space:nowrap">📰 NEWS</div>
+      <div style="flex:1;overflow:hidden;position:relative;height:100%">
+        <div id="newsTickerTrack" style="position:absolute;top:0;left:0;
+          display:flex;align-items:center;height:100%;white-space:nowrap;will-change:transform">
+        </div>
+      </div>
+    </div>
     <!-- Filters -->
     <div class="filter-row" id="filterRow">
       <button class="filter-btn active" onclick="filterMkts('all',this)">🔥 All</button>
@@ -1190,6 +1204,36 @@ var NEWS=[
   {cat:'Pyth',title:'Pyth Community Hackathon 2025 Attracts 500+ Developer Teams Globally',src:'Pyth Network',time:'3d ago',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=120&h=120&fit=crop',body:'The Pyth Community Hackathon 2025 has attracted over 500 developer teams from more than 60 countries, making it one of the largest oracle-focused hackathons in history. Projects span DeFi, GameFi, prediction markets, and real-world asset applications. The $50,000 prize pool has drawn entries from experienced builders and first-time hackathon participants alike. Judges will evaluate submissions on technical innovation, proper use of Pyth price feeds, and real-world utility.'},
 ];
 
+// ── NEWS TICKER ──
+var newsTickerX=0,newsTickerW=0,newsTickerRAF=null;
+
+function buildNewsTicker(){
+  var track=document.getElementById('newsTickerTrack');
+  if(!track)return;
+  var headlines=NEWS.map(function(n){
+    return'<span style="display:inline-flex;align-items:center;gap:6px;padding:0 20px;'
+      +'font-size:10px;color:var(--text);cursor:pointer;border-right:1px solid rgba(255,255,255,0.06)">'
+      +'<span style="font-size:8px;font-weight:700;color:var(--blue2)">'+n.cat.toUpperCase()+'</span>'
+      +'<span>'+n.title+'</span>'
+    +'</span>';
+  }).join('');
+  // Triple for seamless scroll
+  track.innerHTML=headlines+headlines+headlines;
+  requestAnimationFrame(function(){
+    newsTickerW=track.scrollWidth/3;
+    newsTickerX=0;
+    if(!newsTickerRAF)animateNewsTicker();
+  });
+}
+
+function animateNewsTicker(){
+  newsTickerX-=0.4;
+  if(newsTickerW>0&&Math.abs(newsTickerX)>=newsTickerW) newsTickerX=0;
+  var t=document.getElementById('newsTickerTrack');
+  if(t) t.style.transform='translateX('+newsTickerX+'px)';
+  newsTickerRAF=requestAnimationFrame(animateNewsTicker);
+}
+
 var newsFilter='all';
 function filterNews(f,btn){
   newsFilter=f;
@@ -1904,6 +1948,7 @@ checkSession();
 renderMarkets();
 renderFootball();
 renderNews();
+buildNewsTicker();
 updateBalDisplay();
 fetchAll();
 ppFetchInt=setInterval(fetchAll,3000);
