@@ -1371,12 +1371,10 @@ function renderAssetChips(){
 }
 
 function selAsset(sym){
-  if(ppActiveBets.length)return;
-  currentAsset=ASSETS.find(function(a){return a.sym===sym;});
   selSym=sym;
-  priceHistory=[];
   document.getElementById('ppTitle').textContent='Predict '+sym;
-  document.getElementById('targetTitle').textContent=sym+' above ___ today?';
+  var tEl=document.getElementById('targetTitle');
+  if(tEl)tEl.textContent=sym+' above ___ today?';
   renderAssetChips();
   renderCryptoFeatured();
   ppUpdateDisplay();
@@ -1446,8 +1444,6 @@ function openTargetBet(sym,target,odds){
       +'<div style="font-size:18px;font-weight:800;font-family:var(--fm);color:var(--dn2)">'+(100-odds)+'¢</div>'
     +'</div>';
   document.getElementById('ovMktBet').classList.add('show');
-}
-  document.getElementById('ppTitle').textContent='Predict '+sym;
 }
 
 // FEATURED
