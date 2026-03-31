@@ -9,18 +9,31 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#070910;--s1:#0c0e15;--s2:#11141f;--s3:#161a27;
-  --b:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.1);
+  --bg:#060810;--s1:#0d1018;--s2:#131720;--s3:#181d28;
+  --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.12);
   --up:#16a34a;--up2:#22c55e;--up3:rgba(34,197,94,0.12);
   --dn:#dc2626;--dn2:#ef4444;--dn3:rgba(239,68,68,0.12);
   --blue:#2563eb;--blue2:#3b82f6;--blue3:rgba(59,130,246,0.12);
   --gold:#d97706;--gold2:#f59e0b;--gold3:rgba(245,158,11,0.12);
   --purple:#7c3aed;--purple2:#8b5cf6;
   --text:#f1f5f9;--sub:#64748b;--muted:#334155;--dim:#1e293b;
-  --f:'Outfit',sans-serif;--fm:'Geist Mono',monospace;--fs:'Instrument Serif',serif;
+  --f:'Outfit',sans-serif;--fm:'Geist Mono',monospace;
+  --radius:12px;--shadow:0 4px 24px rgba(0,0,0,0.4);
 }
 html,body{width:100%;height:100%;background:var(--bg);color:var(--text);
-  font-family:var(--f);font-size:13px;overflow:hidden;transition:background .2s,color .2s}
+  font-family:var(--f);font-size:13px;overflow:hidden;
+  -webkit-font-smoothing:antialiased}
+
+/* Subtle mesh background */
+html::before{content:’’;position:fixed;inset:0;z-index:0;pointer-events:none;
+background:
+radial-gradient(ellipse 80% 40% at 15% 10%,rgba(59,130,246,0.05) 0%,transparent 55%),
+radial-gradient(ellipse 60% 35% at 85% 85%,rgba(139,92,246,0.04) 0%,transparent 55%),
+radial-gradient(ellipse 50% 30% at 50% 50%,rgba(34,197,94,0.025) 0%,transparent 55%)}
+
+/* Hide scrollbars globally */
+*::-webkit-scrollbar{display:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
 
 /* ── LIGHT MODE ── */
 body.light{
@@ -250,7 +263,7 @@ cursor:pointer;text-align:center;transition:all .15s}
 .pp-bq:disabled{opacity:.35;cursor:not-allowed}
 .pp-bet-row{display:flex;gap:5px;margin-bottom:6px}
 .pp-bet-wrap{flex:1;position:relative}
-.pp-bet-${position:absolute;left:9px;top:50%;transform:translateY(-50%);
+.pp-bet-dollar{position:absolute;left:9px;top:50%;transform:translateY(-50%);
 color:var(–gold2);font-family:var(–fm);font-size:12px;font-weight:600}
 .pp-bet-input{width:100%;padding:8px 8px 8px 22px;border-radius:6px;
 border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.05);
@@ -442,6 +455,7 @@ animation:blink 2s infinite}
   <!-- ══ CRYPTO PAGE ══ -->
 
   <div class="page" id="pageCrypto">
+    <div class="asset-scroll" id="assetScroll"></div>
     <!-- Featured chart -->
     <div class="crypto-featured" id="cryptoFeatured">
       <div class="cf-header">
@@ -519,7 +533,7 @@ animation:blink 2s infinite}
         </div>
         <div class="pp-bet-row">
           <div class="pp-bet-wrap">
-            <span class="pp-bet-$">$</span>
+            <span class="pp-bet-dollar">$</span>
             <input class="pp-bet-input" id="ppBetInput" type="number" placeholder="0" oninput="ppOnInput()">
           </div>
           <button class="pp-bet-max" id="ppBetMax" onclick="ppBetMax()">MAX</button>
@@ -946,7 +960,7 @@ function renderMarkets(){
 
 function filterMkts(f,btn){
   mktFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('#filterRow .filter-btn').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   renderMarkets();
 }
@@ -1679,16 +1693,9 @@ async function doConnect(name){
     }
     // Short display
     var display=addr.length>12?addr.slice(0,6)+'...'+addr.slice(-4):addr;
-    wConnected=true;wName=name;wAddr=display;
-    var btn=document.getElementById('walletChip');
-    btn.textContent=display;btn.classList.add('on');
-    document.getElementById('wovOptions').style.display='none';
-    document.getElementById('wovConnected').style.display='block';
-    document.getElementById('wovTitle').textContent='✅ Connected';
-    document.getElementById('wovSub').textContent='';
-    document.getElementById('wovName').textContent=name;
-    document.getElementById('wovAddr').textContent=display;
-    setTimeout(closeWallet,1800);
+    var av=name==='Phantom'?'👻':name==='MetaMask'?'🦊':'🔗';
+    closeWallet();
+    enterApp(name,display,av);
   } catch(e){
     console.error('Wallet connect error:',e);
     alert('Could not connect: '+(e.message||'User rejected'));
@@ -1696,9 +1703,7 @@ async function doConnect(name){
 }
 
 function doDisconnect(){
-  wConnected=false;wName='';wAddr='';
-  var btn=document.getElementById('walletChip');
-  btn.textContent='Connect';btn.classList.remove('on');
+  disconnectAccount();
   closeWallet();
 }
 
