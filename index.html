@@ -1448,12 +1448,12 @@ function ppClockTick(){
   if(ns!==ppRoundStart){
     ppRoundStart=ns;
     if(ppActiveBets.length&&!ppRoundResolved)ppResolve();
-    // Reset for new round — price to beat will be set by next fetchAll
-    ppRoundOpen=0;
-    ppRoundLocked=false;
+    // New round — lock current price immediately as price to beat
+    ppRoundOpen=prices[selSym].p||0;
+    ppRoundLocked=ppRoundOpen>0;
     ppRoundResolved=false;ppActiveBets=[];
     ppUnlock();ppSetBanner('open');ppUpdateBetsList();
-    document.getElementById('ppBeat').textContent='Loading...';
+    ppUpdatePriceToBeat();
   }
   var s=ppSecsLeft();
   var mEl=document.getElementById('ppMins'),sEl=document.getElementById('ppSecs');
@@ -1522,19 +1522,16 @@ function ppSetDur(d){
   ppDur=d;
   document.querySelectorAll('.pp-dur-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('ppd'+d).classList.add('active');
-  // Recalculate round start for new duration
+  // New round starts NOW — lock current price immediately as price to beat
   ppRoundStart=ppGetRoundStart();
-  // RESET price to beat so it picks up fresh on next fetch
-  ppRoundOpen=0;
-  ppRoundLocked=false;
+  ppRoundOpen=prices[selSym].p||0;
+  ppRoundLocked=ppRoundOpen>0; // locked immediately — never changes this round
   ppRoundResolved=false;
   ppActiveBets=[];
   ppUnlock();
   ppSetBanner('open');
   ppUpdateBetsList();
-  document.getElementById('ppBeat').textContent='Loading...';
-  // Immediately fetch to get new price to beat
-  fetchAll();
+  ppUpdatePriceToBeat(); // show it right away
 }
 
 function ppQuickBet(amt,btn){
