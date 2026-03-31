@@ -405,8 +405,24 @@ animation:blink 2s infinite}
   <!-- ══ MARKETS PAGE ══ -->
 
   <div class="page active" id="pageMarkets">
+    <!-- Market stats strip -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+      <div style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:8px;text-align:center">
+        <div style="font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Markets</div>
+        <div style="font-size:14px;font-weight:800;color:var(--text)">15</div>
+      </div>
+      <div style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:8px;text-align:center">
+        <div style="font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Total Vol</div>
+        <div style="font-size:14px;font-weight:800;color:var(--gold2)">$89M</div>
+      </div>
+      <div style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:8px;text-align:center">
+        <div style="font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Live Now</div>
+        <div style="font-size:14px;font-weight:800;color:var(--up2)">3 🟢</div>
+      </div>
+    </div>
+    <!-- Filters -->
     <div class="filter-row" id="filterRow">
-      <button class="filter-btn active" onclick="filterMkts('all',this)">All</button>
+      <button class="filter-btn active" onclick="filterMkts('all',this)">🔥 All</button>
       <button class="filter-btn" onclick="filterMkts('crypto',this)">🪙 Crypto</button>
       <button class="filter-btn" onclick="filterMkts('world',this)">🌍 World</button>
       <button class="filter-btn" onclick="filterMkts('football',this)">⚽ Football</button>
@@ -426,8 +442,6 @@ animation:blink 2s infinite}
   <!-- ══ CRYPTO PAGE ══ -->
 
   <div class="page" id="pageCrypto">
-    <!-- Asset selector chips -->
-    <div class="asset-scroll" id="assetScroll"></div>
     <!-- Featured chart -->
     <div class="crypto-featured" id="cryptoFeatured">
       <div class="cf-header">
@@ -492,9 +506,9 @@ animation:blink 2s infinite}
         </div>
       </div>
       <div class="pp-dur">
-        <button class="pp-dur-btn active" id="ppd120" onclick="ppSetDur(120)"><span class="dv">2m</span>Fast</button>
-        <button class="pp-dur-btn" id="ppd240" onclick="ppSetDur(240)"><span class="dv">4m</span>Balanced</button>
-        <button class="pp-dur-btn" id="ppd600" onclick="ppSetDur(600)"><span class="dv">10m</span>Slow</button>
+        <button class="pp-dur-btn active" id="ppd300" onclick="ppSetDur(300)"><span class="dv">5m</span>Quick</button>
+        <button class="pp-dur-btn" id="ppd600" onclick="ppSetDur(600)"><span class="dv">10m</span>Standard</button>
+        <button class="pp-dur-btn" id="ppd604800" onclick="ppSetDur(604800)"><span class="dv">7d</span>Long</button>
       </div>
       <div class="pp-bet">
         <div class="pp-bet-quick">
@@ -1235,7 +1249,7 @@ async function fetchAll(){
   });
   await Promise.all(promises);
   updateTicker();
-  renderAssetChips();
+  
   renderCryptoFeatured();
   renderTokenList();
   ppUpdateDisplay();
@@ -1326,7 +1340,7 @@ function renderAssetChips(){
 
 function selAsset(sym){
   selSym=sym;
-  renderAssetChips();
+  
   renderCryptoFeatured();
   ppUpdateDisplay();
   document.getElementById('ppTitle').textContent='Predict '+sym;
@@ -1402,11 +1416,18 @@ function renderTokenList(){
 // ══════════════════════════════════════════════
 // PREDICT ENGINE (Pyth price clock rounds)
 // ══════════════════════════════════════════════
-var balance=1000,ppBetAmt=0,ppDur=120,ppActiveBets=[],ppRoundOpen=0,ppRoundLocked=false,ppRoundResolved=false,ppRoundStart=0;
+var balance=1000,ppBetAmt=0,ppDur=300,ppActiveBets=[],ppRoundOpen=0,ppRoundLocked=false,ppRoundResolved=false,ppRoundStart=0;
 var ppClockInt=null,ppFetchInt=null;
 
 function ppGetRoundStart(){return Math.floor(Date.now()/(ppDur*1000))*(ppDur*1000);}
 function ppSecsLeft(){return Math.max(0,Math.ceil((ppGetRoundStart()+ppDur*1000-Date.now())/1000));}
+
+function ppFmtTime(s){
+  if(s>=86400){var d=Math.floor(s/86400),h=Math.floor((s%86400)/3600);return d+'d '+h+'h';}
+  if(s>=3600){var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h+'h '+m+'m';}
+  var m=Math.floor(s/60),sec=s%60;
+  return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
 
 function ppClockTick(){
   var ns=ppGetRoundStart();
@@ -1419,16 +1440,22 @@ function ppClockTick(){
     ppUnlock();ppSetBanner('open');ppUpdateBetsList();ppUpdatePriceToBeat();
   }
   var s=ppSecsLeft();
-  var m=Math.floor(s/60),sec=s%60;
   var mEl=document.getElementById('ppMins'),sEl=document.getElementById('ppSecs');
-  mEl.textContent=String(m).padStart(2,'0');sEl.textContent=String(sec).padStart(2,'0');
-  var col=s<=10?'red':s<=30?'gold':'';
+  // For 7d show "Xd Yh" format split across the two elements
+  if(ppDur>=86400){
+    var d=Math.floor(s/86400),h=Math.floor((s%86400)/3600);
+    mEl.textContent=String(d).padStart(2,'0');sEl.textContent=String(h).padStart(2,'0')+'h';
+  } else {
+    var m=Math.floor(s/60),sec=s%60;
+    mEl.textContent=String(m).padStart(2,'0');sEl.textContent=String(sec).padStart(2,'0');
+  }
+  var col=s<=(ppDur*0.05)?'red':s<=(ppDur*0.15)?'gold':'';
   mEl.className='pp-time '+col;sEl.className='pp-time '+col;
   var pct=(s/ppDur)*100;
   var pf=document.getElementById('ppProgress');
   pf.style.width=pct+'%';
-  pf.style.background=s<=10?'var(--dn2)':s<=30?'var(--gold2)':'var(--blue2)';
-  if(s<=10&&!ppActiveBets.length)ppSetBanner('closing');
+  pf.style.background=s<=(ppDur*0.05)?'var(--dn2)':s<=(ppDur*0.15)?'var(--gold2)':'var(--blue2)';
+  if(s<=(ppDur*0.05)&&!ppActiveBets.length)ppSetBanner('closing');
 }
 
 function ppUpdateDisplay(){
