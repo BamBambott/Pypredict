@@ -418,19 +418,31 @@ animation:blink 2s infinite}
   <!-- ══ MARKETS PAGE ══ -->
 
   <div class="page active" id="pageMarkets">
-    <!-- Market stats strip -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
-      <div style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:8px;text-align:center">
-        <div style="font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Markets</div>
-        <div style="font-size:14px;font-weight:800;color:var(--text)">15</div>
+    <!-- Live price strip -->
+    <div id="livePriceStrip" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+      <div id="lps-BTC" onclick="goTab(1);selAsset('BTC')" style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:10px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:9px;font-weight:700;color:var(--sub)">BTC</span>
+          <span id="lps-BTC-chg" style="font-size:8px;font-weight:700;font-family:var(--fm)">—</span>
+        </div>
+        <div id="lps-BTC-p" style="font-size:12px;font-weight:800;font-family:var(--fm);color:var(--text)">$—</div>
+        <svg id="lps-BTC-svg" style="position:absolute;bottom:0;left:0;right:0;height:20px;width:100%;opacity:0.4" viewBox="0 0 80 20" preserveAspectRatio="none"><polyline id="lps-BTC-line" fill="none" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
-      <div style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:8px;text-align:center">
-        <div style="font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Total Vol</div>
-        <div style="font-size:14px;font-weight:800;color:var(--gold2)">$89M</div>
+      <div id="lps-ETH" onclick="goTab(1);selAsset('ETH')" style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:10px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:9px;font-weight:700;color:var(--sub)">ETH</span>
+          <span id="lps-ETH-chg" style="font-size:8px;font-weight:700;font-family:var(--fm)">—</span>
+        </div>
+        <div id="lps-ETH-p" style="font-size:12px;font-weight:800;font-family:var(--fm);color:var(--text)">$—</div>
+        <svg id="lps-ETH-svg" style="position:absolute;bottom:0;left:0;right:0;height:20px;width:100%;opacity:0.4" viewBox="0 0 80 20" preserveAspectRatio="none"><polyline id="lps-ETH-line" fill="none" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
-      <div style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:8px;text-align:center">
-        <div style="font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Live Now</div>
-        <div style="font-size:14px;font-weight:800;color:var(--up2)">3 🟢</div>
+      <div id="lps-SOL" onclick="goTab(1);selAsset('SOL')" style="padding:8px 10px;background:var(--s1);border:1px solid var(--b);border-radius:10px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:9px;font-weight:700;color:var(--sub)">SOL</span>
+          <span id="lps-SOL-chg" style="font-size:8px;font-weight:700;font-family:var(--fm)">—</span>
+        </div>
+        <div id="lps-SOL-p" style="font-size:12px;font-weight:800;font-family:var(--fm);color:var(--text)">$—</div>
+        <svg id="lps-SOL-svg" style="position:absolute;bottom:0;left:0;right:0;height:20px;width:100%;opacity:0.4" viewBox="0 0 80 20" preserveAspectRatio="none"><polyline id="lps-SOL-line" fill="none" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
     </div>
     <!-- Scrolling news ticker -->
@@ -1329,6 +1341,30 @@ async function fetchAll(){
   renderTokenList();
   ppUpdateDisplay();
   renderPriceTargets();
+  updateLivePriceStrip();
+}
+
+function updateLivePriceStrip(){
+  ['BTC','ETH','SOL'].forEach(function(sym){
+    var s=prices[sym];if(!s||!s.p)return;
+    var pEl=document.getElementById('lps-'+sym+'-p');
+    var cEl=document.getElementById('lps-'+sym+'-chg');
+    var card=document.getElementById('lps-'+sym);
+    var line=document.getElementById('lps-'+sym+'-line');
+    if(!pEl)return;
+    pEl.textContent=fmtP(s.p);
+    var up=s.chg>=0;
+    var col=up?'var(--up2)':'var(--dn2)';
+    cEl.textContent=(up?'▲':'▼')+Math.abs(s.chg).toFixed(2)+'%';
+    cEl.style.color=col;
+    card.style.borderColor=up?'rgba(34,197,94,0.2)':'rgba(239,68,68,0.18)';
+    if(s.hist.length>=2&&line){
+      var mn=Math.min.apply(null,s.hist),mx=Math.max.apply(null,s.hist),range=mx-mn||1;
+      var pts=s.hist.map(function(v,i){return((i/(s.hist.length-1))*80).toFixed(1)+','+(20-((v-mn)/range)*16-2).toFixed(1);}).join(' ');
+      line.setAttribute('points',pts);
+      line.setAttribute('stroke',up?'#22c55e':'#ef4444');
+    }
+  });
 }
 
 function fmtP(p){
