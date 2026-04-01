@@ -653,15 +653,13 @@ animation:blink 2s infinite}
     </div>
   </div>
 
-</div>
-
   <!-- ══ FOREX & COMMODITIES PAGE ══ -->
 
   <div class="page" id="pageForex">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
       <div style="flex:1">
         <div style="font-size:11px;font-weight:800;color:var(--text)">Forex & Commodities</div>
-        <div style="font-size:9px;color:var(--muted);margin-top:2px">Live Pyth oracle feeds · 5-min prediction rounds</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px">Live Pyth oracle feeds · 24h UTC rounds</div>
       </div>
       <div style="display:flex;align-items:center;gap:4px;padding:4px 9px;
         border-radius:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2)">
@@ -669,25 +667,19 @@ animation:blink 2s infinite}
         <span style="font-size:9px;color:var(--up2);font-weight:700">LIVE</span>
       </div>
     </div>
-
-```
-<!-- Forex section -->
-<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--sub);
-  text-transform:uppercase;margin-bottom:7px">🌐 Foreign Exchange</div>
-<div id="fxList"></div>
-
-<!-- Commodities section -->
-<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--sub);
-  text-transform:uppercase;margin:12px 0 7px">🏅 Commodities</div>
-<div id="commodList"></div>
-
-<!-- Loading state -->
-<div id="forexLoading" style="text-align:center;padding:30px;color:var(--muted)">
-  <div style="font-size:24px;margin-bottom:8px">📡</div>
-  <div style="font-size:11px">Connecting to Pyth oracle feeds...</div>
-</div>
-```
-
+    <!-- Forex section -->
+    <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--sub);
+      text-transform:uppercase;margin-bottom:7px">🌐 Foreign Exchange</div>
+    <div id="fxList"></div>
+    <!-- Commodities section -->
+    <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--sub);
+      text-transform:uppercase;margin:12px 0 7px">🏅 Commodities</div>
+    <div id="commodList"></div>
+    <!-- Loading state -->
+    <div id="forexLoading" style="text-align:center;padding:30px;color:var(--muted)">
+      <div style="font-size:24px;margin-bottom:8px">📡</div>
+      <div style="font-size:11px">Connecting to Pyth oracle feeds...</div>
+    </div>
   </div>
 
 </div>
@@ -731,7 +723,7 @@ animation:blink 2s infinite}
     <div class="ov-pay" id="ovPay">—</div>
     <div class="ov-bal" id="ovBal">—</div>
     <button class="ov-btn" onclick="closeResult()">Continue →</button>
-    <button onclick="closeResult();goTab(4)" style="width:100%;padding:9px;border-radius:8px;
+    <button onclick="closeResult();goTab(5)" style="width:100%;padding:9px;border-radius:8px;
       border:1px solid var(--b2);background:transparent;color:var(--sub);
       font-size:11px;font-weight:600;cursor:pointer;margin-top:6px">
       🎯 View My Bets
@@ -2112,17 +2104,23 @@ function openFxBet(sym,dir){
   if(!asset)return;
   var s=fxPrices[sym];
   var price=s&&s.p>0?fmtFx(s.p,asset.dp):'—';
-  curMkt={title:sym+' — Price goes '+(dir==='down'?'DOWN ▼':'UP ▲')+' in 5 min?',
-    cat:'Forex',yes:dir==='down'?42:58};
-  document.getElementById('mbCat').textContent='FOREX · 5 MIN ROUND';
-  document.getElementById('mbTitle').textContent=sym+' — '+(dir==='down'?'Price goes DOWN in 5 min?':'Price goes UP in 5 min?');
+  // Calculate UTC time remaining in 24h round
+  var now=new Date();
+  var utcMidnight=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()+1));
+  var secsLeft=Math.floor((utcMidnight-now)/1000);
+  var hLeft=Math.floor(secsLeft/3600),mLeft=Math.floor((secsLeft%3600)/60);
+  var timeStr=hLeft+'h '+mLeft+'m until UTC midnight';
+  curMkt={title:sym+' — Price goes '+(dir==='down'?'DOWN ▼':'UP ▲')+' by UTC midnight?',cat:'Forex',yes:dir==='down'?42:58};
+  document.getElementById('mbCat').textContent='FOREX · 24H UTC ROUND';
+  document.getElementById('mbTitle').textContent=sym+' — Will price go '+(dir==='down'?'DOWN ▼':'UP ▲')+' by UTC midnight?';
   document.getElementById('mbInput').value='';
   document.getElementById('mbWinYes').textContent='';
   document.getElementById('mbWinNo').textContent='';
   document.getElementById('mbOdds').innerHTML=
-    '<div style="padding:8px;border-radius:6px;background:var(--s2);text-align:center;grid-column:span 2">'
-      +'<div style="font-size:8px;color:var(--muted);margin-bottom:3px">CURRENT PRICE · Pyth Oracle</div>'
-      +'<div style="font-size:18px;font-weight:800;font-family:var(--fm);color:var(--text)">'+price+'</div>'
+    '<div style="padding:8px;border-radius:6px;background:var(--s2);text-align:center;grid-column:span 2;margin-bottom:2px">'
+      +'<div style="font-size:8px;color:var(--muted);margin-bottom:2px">CURRENT · Pyth Oracle</div>'
+      +'<div style="font-size:17px;font-weight:800;font-family:var(--fm);color:var(--text)">'+price+'</div>'
+      +'<div style="font-size:8px;color:var(--muted);margin-top:2px">⏳ Resolves in '+timeStr+'</div>'
     +'</div>'
     +'<div style="padding:8px;border-radius:6px;background:var(--up3);text-align:center">'
       +'<div style="font-size:8px;color:var(--muted);margin-bottom:2px">UP ▲</div>'
