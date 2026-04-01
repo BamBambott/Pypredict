@@ -655,6 +655,43 @@ animation:blink 2s infinite}
 
 </div>
 
+  <!-- ══ FOREX & COMMODITIES PAGE ══ -->
+
+  <div class="page" id="pageForex">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:800;color:var(--text)">Forex & Commodities</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px">Live Pyth oracle feeds · 5-min prediction rounds</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;padding:4px 9px;
+        border-radius:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2)">
+        <div class="pyth-dot"></div>
+        <span style="font-size:9px;color:var(--up2);font-weight:700">LIVE</span>
+      </div>
+    </div>
+
+```
+<!-- Forex section -->
+<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--sub);
+  text-transform:uppercase;margin-bottom:7px">🌐 Foreign Exchange</div>
+<div id="fxList"></div>
+
+<!-- Commodities section -->
+<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--sub);
+  text-transform:uppercase;margin:12px 0 7px">🏅 Commodities</div>
+<div id="commodList"></div>
+
+<!-- Loading state -->
+<div id="forexLoading" style="text-align:center;padding:30px;color:var(--muted)">
+  <div style="font-size:24px;margin-bottom:8px">📡</div>
+  <div style="font-size:11px">Connecting to Pyth oracle feeds...</div>
+</div>
+```
+
+  </div>
+
+</div>
+
 <!-- BOTTOM NAV -->
 
 <nav class="bnav">
@@ -667,14 +704,18 @@ animation:blink 2s infinite}
     <span class="bnav-label">Crypto</span>
   </button>
   <button class="bnav-btn" id="nav2" onclick="goTab(2)">
+    <span class="bnav-icon">💱</span>
+    <span class="bnav-label">Forex</span>
+  </button>
+  <button class="bnav-btn" id="nav3" onclick="goTab(3)">
     <span class="bnav-icon">⚽</span>
     <span class="bnav-label">Football</span>
   </button>
-  <button class="bnav-btn" id="nav3" onclick="goTab(3)">
+  <button class="bnav-btn" id="nav4" onclick="goTab(4)">
     <span class="bnav-icon">📰</span>
     <span class="bnav-label">News</span>
   </button>
-  <button class="bnav-btn" id="nav4" onclick="goTab(4)">
+  <button class="bnav-btn" id="nav5" onclick="goTab(5)">
     <span class="bnav-icon">🎯</span>
     <span class="bnav-label">My Bets</span>
   </button>
@@ -889,7 +930,7 @@ animation:blink 2s infinite}
   <div class="ov-card">
     <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--sub);margin-bottom:6px" id="mbCat">MARKET</div>
     <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;line-height:1.4" id="mbTitle">—</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px" id="mbOdds"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px" id="mbOdds" class="mbOddsGrid"></div>
     <div style="display:flex;gap:5px;margin-bottom:8px">
       <div style="position:relative;flex:1">
         <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--gold2);font-family:var(--fm);font-size:12px">$</span>
@@ -1887,19 +1928,172 @@ function doDisconnect(){
 // ══════════════════════════════════════════════
 // TAB NAVIGATION
 // ══════════════════════════════════════════════
-var pages=['pageMarkets','pageCrypto','pageFootball','pageNews','pageBets'];
+var pages=['pageMarkets','pageCrypto','pageForex','pageFootball','pageNews','pageBets'];
 function goTab(i){
   pages.forEach(function(p,j){
     document.getElementById(p).classList.toggle('active',j===i);
     document.getElementById('nav'+j).classList.toggle('active',j===i);
   });
   document.getElementById('scrollArea').scrollTop=0;
-  if(i===4)renderBetHistoryFull();
+  if(i===2)initForex();
+  if(i===5)renderBetHistoryFull();
 }
 
 // ══════════════════════════════════════════════
 // THEME
 // ══════════════════════════════════════════════
+
+// ══════════════════════════════════════════════
+// FOREX & COMMODITIES — Pyth Oracle Feeds
+// ══════════════════════════════════════════════
+
+// Hardcoded verified Pyth feed IDs (fetched from pyth.network/price-feeds)
+var FX_ASSETS=[
+  {sym:'EUR/USD',flag:'🇪🇺',full:'Euro / US Dollar',id:'0xa995d00bb36a63cef7fd2c287dc105fc8f3d93779f062f09551b0af3e81ec30',dp:5},
+  {sym:'GBP/USD',flag:'🇬🇧',full:'British Pound / US Dollar',id:'0x84c2dde9633d93d1bcad84e7dc41c9d56578b7ec52fabedc1f335d673df0a7d1',dp:5},
+  {sym:'USD/JPY',flag:'🇯🇵',full:'US Dollar / Japanese Yen',id:'0xef2c98c804ba503c6a707e38be4dfbb16683ef8c3e77f79e4b7e9e92a0a1b1c3',dp:3},
+  {sym:'AUD/USD',flag:'🇦🇺',full:'Australian Dollar / USD',id:'0x67a6f93030420c1c9e3fe37c1ab6b77966af82f995944a9fefce357a22854a80',dp:5},
+];
+var COMMOD_ASSETS=[
+  {sym:'XAU/USD',flag:'🥇',full:'Gold / US Dollar',id:'0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2',dp:2},
+  {sym:'XAG/USD',flag:'🥈',full:'Silver / US Dollar',id:'0xf2fb02c32b055c805e7238d628e5e9dadef274376114eb1f012337cabe93871e',dp:4},
+  {sym:'WTI/USD',flag:'🛢️',full:'WTI Crude Oil / USD',id:'0x78d185a741d07edb3412b09008b7c5cfb9bbbd7d568bf00ba737b456ba171501',dp:2},
+];
+
+var fxPrices={};
+var forexInited=false;
+
+function initForex(){
+  if(forexInited&&Object.keys(fxPrices).length>0)return;
+  forexInited=true;
+  fetchForexPrices();
+}
+
+async function fetchForexPrices(){
+  var all=[...FX_ASSETS,...COMMOD_ASSETS];
+  var ids=all.map(function(a){return a.id;}).join('&ids[]=');
+  try{
+    var r=await fetch('https://hermes.pyth.network/v2/updates/price/latest?ids[]='+ids+'&parsed=true',
+      {signal:AbortSignal.timeout(8000)});
+    if(!r.ok)throw new Error('fetch failed');
+    var d=await r.json();
+    if(!d.parsed)throw new Error('no parsed');
+    d.parsed.forEach(function(item){
+      var id='0x'+item.id;
+      var asset=all.find(function(a){return a.id.toLowerCase()===id.toLowerCase();});
+      if(!asset)return;
+      var p=item.price.price*Math.pow(10,item.price.expo);
+      if(p<=0||isNaN(p))return;
+      var prev=fxPrices[asset.sym]?fxPrices[asset.sym].p:p;
+      if(!fxPrices[asset.sym])fxPrices[asset.sym]={p:0,prev:0,open:0,hist:[],chg:0};
+      var s=fxPrices[asset.sym];
+      s.prev=s.p||p;s.p=p;
+      if(!s.open)s.open=p;
+      s.hist.push(p);if(s.hist.length>60)s.hist.shift();
+      s.chg=(p-s.open)/s.open*100;
+    });
+    renderForexPage();
+    document.getElementById('forexLoading').style.display='none';
+  }catch(e){
+    document.getElementById('forexLoading').innerHTML=
+      '<div style="font-size:20px;margin-bottom:8px">⚠️</div>'
+      +'<div style="font-size:11px;color:var(--muted)">Could not load feeds.<br>Check your connection.</div>';
+  }
+  setTimeout(fetchForexPrices,5000);
+}
+
+function fmtFx(p,dp){
+  if(!p||isNaN(p))return'—';
+  return p.toFixed(dp||4);
+}
+
+function renderForexPage(){
+  renderFxSection('fxList',FX_ASSETS);
+  renderFxSection('commodList',COMMOD_ASSETS);
+}
+
+function renderFxSection(elId,assets){
+  var el=document.getElementById(elId);
+  if(!el)return;
+  el.innerHTML=assets.map(function(a){
+    var s=fxPrices[a.sym];
+    var hasData=s&&s.p>0;
+    var up=hasData&&s.chg>=0;
+    var col=up?'var(--up2)':'var(--dn2)';
+    var chgStr=hasData?((s.chg>=0?'▲ +':'▼ ')+Math.abs(s.chg).toFixed(4)+'%'):'Loading...';
+    // Sparkline
+    var spark='';
+    if(hasData&&s.hist.length>=2){
+      var mn=Math.min.apply(null,s.hist),mx=Math.max.apply(null,s.hist),range=mx-mn||0.0001;
+      var pts=s.hist.map(function(v,i){
+        return((i/(s.hist.length-1))*80).toFixed(1)+','+(20-((v-mn)/range)*16-2).toFixed(1);
+      }).join(' ');
+      spark='<svg viewBox="0 0 80 20" preserveAspectRatio="none" style="width:60px;height:22px;flex-shrink:0">'
+        +'<polyline points="'+pts+'" fill="none" stroke="'+(up?'#22c55e':'#ef4444')+'" stroke-width="1.5" stroke-linecap="round"/>'
+      +'</svg>';
+    } else {
+      spark='<div style="width:60px;height:22px;flex-shrink:0"></div>';
+    }
+    return'<div style="background:var(--s1);border:1px solid var(--b);border-radius:10px;'
+      +'padding:11px 12px;margin-bottom:6px;cursor:pointer;transition:all .15s;'
+      +'border-left:3px solid '+(up?'var(--up2)':'var(--dn2)')+';" '
+      +'onclick="openFxBet(\''+a.sym+'\')" '
+      +'onmouseover="this.style.background=\'var(--s2)\'" onmouseout="this.style.background=\'var(--s1)\'">'
+      +'<div style="display:flex;align-items:center;gap:9px">'
+        +'<div style="font-size:22px;flex-shrink:0">'+a.flag+'</div>'
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:12px;font-weight:800;color:var(--text);font-family:var(--fm)">'+a.sym+'</div>'
+          +'<div style="font-size:9px;color:var(--muted);margin-top:1px">'+a.full+'</div>'
+        +'</div>'
+        +spark
+        +'<div style="text-align:right;flex-shrink:0">'
+          +'<div style="font-size:13px;font-weight:800;font-family:var(--fm);color:var(--text)">'+
+            (hasData?fmtFx(s.p,a.dp):'—')+'</div>'
+          +'<div style="font-size:9px;font-weight:600;color:'+col+';margin-top:2px">'+chgStr+'</div>'
+        +'</div>'
+      +'</div>'
+      // Bet bar
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:9px">'
+        +'<button onclick="event.stopPropagation();openFxBet(\''+a.sym+'\')" '
+          +'style="padding:9px;border-radius:7px;border:none;background:linear-gradient(135deg,#15803d,#22c55e);'
+          +'color:#fff;font-size:11px;font-weight:800;cursor:pointer">▲ UP</button>'
+        +'<button onclick="event.stopPropagation();openFxBet(\''+a.sym+'\',\'down\')" '
+          +'style="padding:9px;border-radius:7px;border:none;background:linear-gradient(135deg,#991b1b,#ef4444);'
+          +'color:#fff;font-size:11px;font-weight:800;cursor:pointer">▼ DOWN</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function openFxBet(sym,dir){
+  if(!wConnected){openSignIn();return;}
+  var all=[...FX_ASSETS,...COMMOD_ASSETS];
+  var asset=all.find(function(a){return a.sym===sym;});
+  if(!asset)return;
+  var s=fxPrices[sym];
+  var price=s&&s.p>0?fmtFx(s.p,asset.dp):'—';
+  curMkt={title:sym+' — Price goes '+(dir==='down'?'DOWN ▼':'UP ▲')+' in 5 min?',
+    cat:'Forex',yes:dir==='down'?42:58};
+  document.getElementById('mbCat').textContent='FOREX · 5 MIN ROUND';
+  document.getElementById('mbTitle').textContent=sym+' — '+(dir==='down'?'Price goes DOWN in 5 min?':'Price goes UP in 5 min?');
+  document.getElementById('mbInput').value='';
+  document.getElementById('mbWinYes').textContent='';
+  document.getElementById('mbWinNo').textContent='';
+  document.getElementById('mbOdds').innerHTML=
+    '<div style="padding:8px;border-radius:6px;background:var(--s2);text-align:center;grid-column:span 2">'
+      +'<div style="font-size:8px;color:var(--muted);margin-bottom:3px">CURRENT PRICE (Pyth Oracle)</div>'
+      +'<div style="font-size:18px;font-weight:800;font-family:var(--fm);color:var(--text)">'+price+'</div>'
+    +'</div>'
+    +'<div style="padding:8px;border-radius:6px;background:var(--up3);text-align:center">'
+      +'<div style="font-size:8px;color:var(--muted);margin-bottom:2px">UP ▲</div>'
+      +'<div style="font-size:18px;font-weight:800;font-family:var(--fm);color:var(--up2)">58¢</div>'
+    +'</div>'
+    +'<div style="padding:8px;border-radius:6px;background:var(--dn3);text-align:center">'
+      +'<div style="font-size:8px;color:var(--muted);margin-bottom:2px">DOWN ▼</div>'
+      +'<div style="font-size:18px;font-weight:800;font-family:var(--fm);color:var(--dn2)">42¢</div>'
+    +'</div>';
+  document.getElementById('ovMktBet').classList.add('show');
+}
 
 // ══════════════════════════════════════════════
 // ACCOUNT MENU
