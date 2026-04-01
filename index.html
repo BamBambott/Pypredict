@@ -1012,6 +1012,7 @@ function filterMkts(f,btn){
 // ── MARKET BET ──
 var curMkt=null;
 function openMktBet(id,side){
+  if(!wConnected){openSignIn();return;}
   curMkt=MARKETS.find(function(m){return m.id===id;});
   if(!curMkt)return;
   document.getElementById('mbCat').textContent=curMkt.cat.toUpperCase();
@@ -1175,6 +1176,7 @@ function renderFootball(){
 }
 
 function openFootballBet(el,home,away,homeOdds,awayOdds,side){
+  if(!wConnected){openSignIn();return;}
   curMkt={title:home+' vs '+away,cat:'FOOTBALL',yes:homeOdds,homeOdds:homeOdds,awayOdds:awayOdds,home:home,away:away};
   document.getElementById('mbCat').textContent='FOOTBALL';
   document.getElementById('mbTitle').textContent=home+' vs '+away;
@@ -1506,6 +1508,7 @@ function renderPriceTargets(){
 }
 
 function openTargetBet(sym,target,odds){
+  if(!wConnected){openSignIn();return;}
   // Reuse the market bet overlay
   var fmt=target>=1000?'$'+target.toLocaleString('en-US'):fmtP(target);
   curMkt={title:sym+' above '+fmt+' today?',cat:'Crypto',yes:odds};
@@ -1718,6 +1721,7 @@ function ppBetMax(){
 }
 
 function ppBet(dir){
+  if(!wConnected){openSignIn();return;}
   if(ppSecsLeft()<=10){ppSetBanner('closing');return;}
   if(ppBetAmt<1){document.getElementById('ppBetInput').style.borderColor='var(--dn2)';setTimeout(function(){document.getElementById('ppBetInput').style.borderColor='';},1000);return;}
   if(ppBetAmt>balance)return;
