@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>PyPredict Agent — x402 on Stellar</title>
+<style>
+  /* ── Reset & base ─────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #000;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { text-decoration: none; color: inherit; }
+  button { border: none; cursor: pointer; font-family: inherit; }
+
+/* ── Layout ───────────────────────────────────────────────── */
+.app {
+max-width: 480px;
+margin: 0 auto;
+min-height: 100vh;
+background: #000;
+position: relative;
+padding-bottom: 80px;
+}
+
+/* ── Price ticker ─────────────────────────────────────────── */
+.ticker {
+display: flex;
+gap: 0;
+overflow-x: auto;
+padding: 8px 16px;
+border-bottom: 1px solid #111;
+scrollbar-width: none;
+}
+.ticker::-webkit-scrollbar { display: none; }
+.ticker-item {
+display: flex;
+align-items: center;
+gap: 6px;
+padding-right: 20px;
+flex-shrink: 0;
+}
+.ticker-sym { font-size: 11px; font-weight: 700; color: #666; }
+.ticker-price { font-size: 12px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
+.ticker-change { font-size: 11px; font-weight: 600; }
+.up { color: #22C55E; }
+.dn { color: #EF4444; }
+
+/* ── Top nav ──────────────────────────────────────────────── */
+.topnav {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 12px 16px;
+border-bottom: 1px solid #111;
+}
+.logo {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.logo-icon {
+width: 36px; height: 36px;
+background: #fff;
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+font-size: 20px;
+}
+.logo-text { font-size: 18px; font-weight: 800; color: #fff; }
+.back-btn {
+border: 1.5px solid #3B82F6;
+color: #3B82F6;
+border-radius: 10px;
+padding: 6px 14px;
+font-size: 13px;
+font-weight: 600;
+background: transparent;
+}
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.hero {
+margin: 14px 16px 0;
+border-radius: 18px;
+background: linear-gradient(135deg, #050e1f 0%, #0a1a35 50%, #040d1c 100%);
+border: 1px solid #0f2040;
+padding: 20px;
+position: relative;
+overflow: hidden;
+}
+.hero-grid {
+position: absolute; inset: 0;
+background-image:
+linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+background-size: 24px 24px;
+}
+.hero-content { position: relative; }
+.hero-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+background: rgba(59,130,246,0.15);
+border: 1px solid rgba(59,130,246,0.35);
+color: #60A5FA;
+font-size: 10px;
+font-weight: 700;
+padding: 3px 10px;
+border-radius: 20px;
+letter-spacing: 0.08em;
+margin-bottom: 10px;
+}
+.hero-badge::before {
+content: ‘’;
+width: 6px; height: 6px;
+border-radius: 50%;
+background: #3B82F6;
+animation: pulse 1.5s infinite;
+}
+.hero h1 {
+font-size: 22px;
+font-weight: 800;
+color: #fff;
+line-height: 1.2;
+margin-bottom: 8px;
+}
+.hero p {
+font-size: 13px;
+color: #5a7099;
+line-height: 1.55;
+margin-bottom: 16px;
+}
+.hero p span { color: #22C55E; font-weight: 600; }
+.hero-stats {
+display: flex;
+gap: 10px;
+}
+.stat-card {
+flex: 1;
+background: rgba(0,0,0,0.4);
+border: 1px solid #0f2040;
+border-radius: 10px;
+padding: 8px 10px;
+}
+.stat-value { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.stat-label { font-size: 10px; color: #3a4f6e; }
+
+/* ── Run button ───────────────────────────────────────────── */
+.run-wrap { padding: 14px 16px 8px; }
+.run-btn {
+width: 100%;
+padding: 15px;
+border-radius: 14px;
+background: linear-gradient(135deg, #22C55E, #16A34A);
+color: #fff;
+font-size: 15px;
+font-weight: 800;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+box-shadow: 0 6px 24px rgba(34,197,94,0.3);
+transition: all 0.2s;
+letter-spacing: 0.02em;
+}
+.run-btn:disabled {
+background: #111;
+color: #333;
+box-shadow: none;
+}
+.run-hint {
+text-align: center;
+color: #2a2a2a;
+font-size: 11px;
+margin-top: 8px;
+}
+.run-hint code {
+color: #444;
+background: #0a0a0a;
+padding: 1px 5px;
+border-radius: 4px;
+font-size: 10px;
+}
+
+/* ── Section label ────────────────────────────────────────── */
+.sec-label {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 16px 8px;
+}
+.sec-label span:first-child {
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.1em;
+color: #2a2a2a;
+}
+.sec-label span:last-child {
+font-size: 10px;
+font-weight: 600;
+color: #22C55E;
+}
+
+/* ── Flow steps ───────────────────────────────────────────── */
+.flow-box {
+margin: 0 16px 14px;
+background: #080808;
+border: 1px solid #111;
+border-radius: 16px;
+overflow: hidden;
+}
+.flow-header {
+padding: 12px 16px 8px;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.1em;
+color: #2a2a2a;
+border-bottom: 1px solid #0f0f0f;
+}
+.step-row {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 11px 16px;
+border-bottom: 1px solid #0d0d0d;
+transition: opacity 0.35s;
+}
+.step-row:last-child { border-bottom: none; }
+.step-row.inactive { opacity: 0.25; }
+.step-row.active { opacity: 1; }
+.step-row.done { opacity: 1; }
+.step-circle {
+width: 32px; height: 32px;
+border-radius: 50%;
+flex-shrink: 0;
+display: flex; align-items: center; justify-content: center;
+font-size: 15px;
+border: 1.5px solid #1a1a1a;
+background: #111;
+transition: all 0.35s;
+}
+.step-row.active .step-circle {
+border-color: #3B82F6;
+background: rgba(59,130,246,0.1);
+}
+.step-row.done .step-circle {
+border-color: #22C55E;
+background: rgba(34,197,94,0.1);
+font-size: 14px;
+}
+.step-info { flex: 1; }
+.step-name {
+font-size: 13px;
+font-weight: 600;
+color: #333;
+transition: color 0.35s;
+}
+.step-row.active .step-name { color: #fff; }
+.step-row.done .step-name { color: #22C55E; }
+.step-sub { font-size: 11px; color: #2a2a2a; margin-top: 1px; }
+.step-dot {
+width: 6px; height: 6px;
+border-radius: 50%;
+background: #3B82F6;
+animation: pulse 1s infinite;
+display: none;
+}
+.step-row.active .step-dot { display: block; }
+
+/* ── Market card ──────────────────────────────────────────── */
+.markets-list { padding: 0 16px; }
+.market-card {
+background: #0e0e0e;
+border: 1px solid #1a1a1a;
+border-radius: 16px;
+padding: 14px;
+margin-bottom: 12px;
+transition: border-color 0.3s, background 0.3s;
+}
+.market-card.chosen {
+border-color: #22C55E;
+background: rgba(34,197,94,0.04);
+}
+.card-top {
+display: flex;
+gap: 12px;
+align-items: flex-start;
+}
+.card-icon {
+width: 44px; height: 44px;
+border-radius: 12px;
+background: #161616;
+border: 1px solid #222;
+display: flex; align-items: center; justify-content: center;
+font-size: 22px;
+flex-shrink: 0;
+}
+.card-body { flex: 1; min-width: 0; }
+.card-cat-row {
+display: flex;
+align-items: center;
+gap: 6px;
+margin-bottom: 4px;
+}
+.cat-label {
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.08em;
+}
+.cat-crypto { color: #F7931A; }
+.cat-world  { color: #3B82F6; }
+.agent-pick {
+font-size: 9px;
+font-weight: 700;
+background: #22C55E;
+color: #000;
+border-radius: 4px;
+padding: 1px 5px;
+letter-spacing: 0.05em;
+}
+.card-title-row {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+gap: 8px;
+margin-bottom: 6px;
+}
+.card-title {
+font-size: 14px;
+font-weight: 600;
+color: #fff;
+line-height: 1.35;
+flex: 1;
+}
+.odds-badge {
+border-radius: 8px;
+padding: 2px 8px;
+font-size: 13px;
+font-weight: 700;
+flex-shrink: 0;
+}
+.odds-green { background: rgba(34,197,94,0.15); color: #22C55E; }
+.odds-amber { background: rgba(245,158,11,0.15); color: #F59E0B; }
+.card-meta {
+display: flex;
+gap: 8px;
+align-items: center;
+font-size: 11px;
+color: #333;
+margin-bottom: 8px;
+}
+.progress-labels {
+display: flex;
+justify-content: space-between;
+margin-bottom: 4px;
+}
+.yes-label { font-size: 11px; font-weight: 600; color: #22C55E; }
+.no-label  { font-size: 11px; font-weight: 600; color: #EF4444; }
+.progress-bar {
+height: 6px;
+border-radius: 3px;
+background: #EF4444;
+overflow: hidden;
+margin-bottom: 10px;
+}
+.progress-fill {
+height: 100%;
+border-radius: 3px;
+background: #22C55E;
+}
+.card-btns {
+display: flex;
+gap: 8px;
+}
+.btn-yes, .btn-no {
+flex: 1;
+border-radius: 10px;
+padding: 9px 0;
+text-align: center;
+border: none;
+cursor: default;
+}
+.btn-yes { background: #22C55E; }
+.btn-no  { background: #C0392B; }
+.btn-label { font-size: 12px; font-weight: 800; color: #fff; }
+.btn-price { font-size: 10px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+
+/* ── Payload boxes ────────────────────────────────────────── */
+.payload {
+margin: 0 16px 12px;
+border-radius: 0 12px 12px 0;
+border-left: 3px solid;
+padding: 13px 14px;
+background: #050505;
+animation: fadeUp 0.3s ease;
+}
+.payload-title {
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.1em;
+margin-bottom: 10px;
+}
+.payload-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 3px 0;
+border-bottom: 1px solid #0a0a0a;
+}
+.payload-row:last-child { border-bottom: none; }
+.payload-key {
+font-size: 11px;
+color: #333;
+font-family: ‘SF Mono’, ‘Fira Code’, monospace;
+}
+.payload-val {
+font-size: 11px;
+color: #777;
+font-family: ‘SF Mono’, ‘Fira Code’, monospace;
+text-align: right;
+max-width: 60%;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.val-green { color: #22C55E !important; font-weight: 700; }
+.val-red   { color: #EF4444 !important; font-weight: 700; }
+.val-blue  { color: #3B82F6 !important; }
+.val-bold  { color: #aaa !important; font-weight: 700; }
+
+/* ── Decision box ─────────────────────────────────────────── */
+.decision-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
+}
+.decision-cell .dc-label { font-size: 10px; color: #2a2a2a; margin-bottom: 3px; }
+.decision-cell .dc-value { font-size: 13px; font-weight: 600; color: #666; }
+
+/* ── Log console ──────────────────────────────────────────── */
+.log-box {
+margin: 0 16px 16px;
+background: #030303;
+border: 1px solid #0f0f0f;
+border-radius: 12px;
+padding: 12px 14px;
+max-height: 200px;
+overflow-y: auto;
+scrollbar-width: thin;
+scrollbar-color: #1a1a1a #000;
+}
+.log-line {
+display: flex;
+gap: 8px;
+padding: 2px 0;
+animation: fadeUp 0.25s ease;
+}
+.log-time { font-size: 10px; color: #222; font-family: monospace; flex-shrink: 0; }
+.log-msg  { font-size: 11px; color: #555; line-height: 1.4; }
+.log-msg.success { color: #22C55E; }
+.log-msg.info    { color: #3B82F6; }
+.log-msg.warn    { color: #F59E0B; }
+
+/* ── How it works ─────────────────────────────────────────── */
+.how-box {
+margin: 0 16px 16px;
+background: #080808;
+border: 1px solid #111;
+border-radius: 16px;
+padding: 16px;
+}
+.how-item {
+display: flex;
+gap: 12px;
+align-items: flex-start;
+margin-bottom: 14px;
+}
+.how-item:last-child { margin-bottom: 0; }
+.how-icon { font-size: 20px; flex-shrink: 0; padding-top: 1px; }
+.how-title { font-size: 13px; font-weight: 600; color: #bbb; margin-bottom: 3px; }
+.how-desc  { font-size: 12px; color: #333; line-height: 1.45; }
+
+/* ── Error ────────────────────────────────────────────────── */
+.error-box {
+margin: 0 16px 12px;
+background: rgba(239,68,68,0.06);
+border: 1px solid rgba(239,68,68,0.2);
+border-radius: 12px;
+padding: 12px 14px;
+font-size: 12px;
+color: #EF4444;
+animation: fadeUp 0.3s ease;
+}
+
+/* ── Bottom nav ───────────────────────────────────────────── */
+.bottom-nav {
+position: fixed;
+bottom: 0; left: 50%;
+transform: translateX(-50%);
+width: 100%;
+max-width: 480px;
+background: #000;
+border-top: 1px solid #111;
+display: flex;
+justify-content: space-around;
+padding: 8px 0 16px;
+z-index: 100;
+}
+.nav-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 3px;
+min-width: 48px;
+text-decoration: none;
+}
+.nav-icon { font-size: 20px; }
+.nav-label {
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 0.06em;
+color: #2a2a2a;
+}
+.nav-item.active .nav-label { color: #3B82F6; }
+
+/* ── Spinner ──────────────────────────────────────────────── */
+.spinner {
+width: 16px; height: 16px;
+border: 2px solid rgba(255,255,255,0.2);
+border-top-color: #fff;
+border-radius: 50%;
+animation: spin 0.7s linear infinite;
+flex-shrink: 0;
+}
+
+/* ── Animations ───────────────────────────────────────────── */
+@keyframes pulse {
+0%, 100% { opacity: 1; transform: scale(1); }
+50%       { opacity: 0.4; transform: scale(0.75); }
+}
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(6px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+0%   { background-position: -200% center; }
+100% { background-position: 200% center; }
+}
+.hidden { display: none !important; }
+</style>
+
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Price ticker ──────────────────────────────────────── -->
+
+  <div class="ticker">
+    <div class="ticker-item">
+      <span class="ticker-sym">ETH</span>
+      <span class="ticker-price">$2,187.44</span>
+      <span class="ticker-change up">▲0.00%</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ticker-sym">SOL</span>
+      <span class="ticker-price">$82.07</span>
+      <span class="ticker-change dn">▼0.00%</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ticker-sym">BNB</span>
+      <span class="ticker-price">$597.02</span>
+      <span class="ticker-change up">▲0.01%</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ticker-sym">XLM</span>
+      <span class="ticker-price">$0.2841</span>
+      <span class="ticker-change up">▲1.24%</span>
+    </div>
+  </div>
+
+  <!-- ── Top nav ───────────────────────────────────────────── -->
+
+  <div class="topnav">
+    <div class="logo">
+      <div class="logo-icon">🔮</div>
+      <span class="logo-text">PyPredict</span>
+    </div>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Markets</button>
+  </div>
+
+  <!-- ── Hero ──────────────────────────────────────────────── -->
+
+  <div class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">x402 v2 · STELLAR TESTNET</div>
+      <h1>AI Agent<br>Predictions</h1>
+      <p>
+        Autonomous agents discover markets, pay
+        <span>$0.01 USDC</span> on Stellar, and place
+        predictions — no humans, no API keys, no subscriptions.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-value" style="color:#22C55E">$0.01</div>
+          <div class="stat-label">Per Prediction</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:#3B82F6">~5s</div>
+          <div class="stat-label">Settlement</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:#F59E0B">$0.00001</div>
+          <div class="stat-label">Tx Fee</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Run button ────────────────────────────────────────── -->
+
+  <div class="run-wrap">
+    <button class="run-btn" id="runBtn" onclick="runAgent()">
+      ▶&nbsp; Run Autonomous Agent
+    </button>
+    <p class="run-hint">
+      Simulates full x402 flow &nbsp;·&nbsp;
+      For real Stellar txs: <code>node scripts/agent.mjs</code>
+    </p>
+  </div>
+
+  <!-- ── x402 Flow ─────────────────────────────────────────── -->
+
+  <div class="flow-box">
+    <div class="flow-header">x402 PAYMENT FLOW</div>
+    <div class="step-row inactive" id="step-0">
+      <div class="step-circle">🔍</div>
+      <div class="step-info">
+        <div class="step-name">Discover Markets</div>
+        <div class="step-sub">Free endpoint — no payment required</div>
+      </div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="step-row inactive" id="step-1">
+      <div class="step-circle">🤖</div>
+      <div class="step-info">
+        <div class="step-name">Agent Decides</div>
+        <div class="step-sub">AI picks market + outcome autonomously</div>
+      </div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="step-row inactive" id="step-2">
+      <div class="step-circle">📡</div>
+      <div class="step-info">
+        <div class="step-name">Request Access</div>
+        <div class="step-sub">POST /api/agent/predict — no payment</div>
+      </div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="step-row inactive" id="step-3">
+      <div class="step-circle">💳</div>
+      <div class="step-info">
+        <div class="step-name">HTTP 402 Received</div>
+        <div class="step-sub">Server returns Stellar USDC requirements</div>
+      </div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="step-row inactive" id="step-4">
+      <div class="step-circle">✍️</div>
+      <div class="step-info">
+        <div class="step-name">Sign & Pay</div>
+        <div class="step-sub">Agent signs $0.01 USDC on Stellar</div>
+      </div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="step-row inactive" id="step-5">
+      <div class="step-circle">✅</div>
+      <div class="step-info">
+        <div class="step-name">Prediction Confirmed</div>
+        <div class="step-sub">On-chain tx hash returned</div>
+      </div>
+      <div class="step-dot"></div>
+    </div>
+  </div>
+
+  <!-- ── Markets (shown after discovery) ───────────────────── -->
+
+  <div id="marketsSection" class="hidden">
+    <div class="sec-label">
+      <span>DISCOVERED MARKETS</span>
+      <span id="marketCount"></span>
+    </div>
+    <div class="markets-list" id="marketsList"></div>
+  </div>
+
+  <!-- ── Agent decision ────────────────────────────────────── -->
+
+  <div id="decisionBox" class="hidden payload" style="border-color:#3B82F6">
+    <div class="payload-title" style="color:#3B82F6">🤖 AGENT DECISION</div>
+    <div class="decision-grid">
+      <div class="decision-cell">
+        <div class="dc-label">Market</div>
+        <div class="dc-value" id="d-market" style="color:#888;font-size:11px"></div>
+      </div>
+      <div class="decision-cell">
+        <div class="dc-label">Outcome</div>
+        <div class="dc-value" id="d-outcome"></div>
+      </div>
+      <div class="decision-cell">
+        <div class="dc-label">Confidence</div>
+        <div class="dc-value" id="d-conf" style="color:#F59E0B"></div>
+      </div>
+      <div class="decision-cell">
+        <div class="dc-label">Reasoning</div>
+        <div class="dc-value" style="color:#444;font-size:11px">Max odds spread</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 402 Challenge ─────────────────────────────────────── -->
+
+  <div id="challengeBox" class="hidden payload" style="border-color:#F59E0B">
+    <div class="payload-title" style="color:#F59E0B">💳 HTTP 402 — PAYMENT REQUIRED</div>
+    <div class="payload-row"><span class="payload-key">x402Version</span><span class="payload-val val-blue">2</span></div>
+    <div class="payload-row"><span class="payload-key">scheme</span><span class="payload-val">"exact"</span></div>
+    <div class="payload-row"><span class="payload-key">network</span><span class="payload-val val-blue">"stellar:testnet"</span></div>
+    <div class="payload-row"><span class="payload-key">asset</span><span class="payload-val">USDC (CBIELTK6...)</span></div>
+    <div class="payload-row"><span class="payload-key">maxAmount</span><span class="payload-val val-bold">"100000" = $0.01</span></div>
+    <div class="payload-row"><span class="payload-key">payTo</span><span class="payload-val" id="c-payTo">G...</span></div>
+    <div class="payload-row"><span class="payload-key">feesSponsored</span><span class="payload-val val-green">true ✓</span></div>
+    <div class="payload-row"><span class="payload-key">timeout</span><span class="payload-val">300s</span></div>
+  </div>
+
+  <!-- ── Confirmed result ───────────────────────────────────── -->
+
+  <div id="resultBox" class="hidden payload" style="border-color:#22C55E">
+    <div class="payload-title" style="color:#22C55E">🎉 HTTP 200 — PREDICTION CONFIRMED</div>
+    <div class="payload-row"><span class="payload-key">id</span><span class="payload-val" id="r-id"></span></div>
+    <div class="payload-row"><span class="payload-key">marketId</span><span class="payload-val" id="r-market"></span></div>
+    <div class="payload-row"><span class="payload-key">outcome</span><span class="payload-val" id="r-outcome"></span></div>
+    <div class="payload-row"><span class="payload-key">protocol</span><span class="payload-val val-blue">"x402 v2"</span></div>
+    <div class="payload-row"><span class="payload-key">network</span><span class="payload-val val-blue">"stellar:testnet"</span></div>
+    <div class="payload-row"><span class="payload-key">amount</span><span class="payload-val val-green">"$0.01 USDC"</span></div>
+    <div class="payload-row"><span class="payload-key">txHash</span><span class="payload-val" id="r-tx"></span></div>
+    <div class="payload-row"><span class="payload-key">status</span><span class="payload-val val-green val-bold">"confirmed" ✓</span></div>
+  </div>
+
+  <!-- ── Error ─────────────────────────────────────────────── -->
+
+  <div id="errorBox" class="hidden error-box"></div>
+
+  <!-- ── Agent log ─────────────────────────────────────────── -->
+
+  <div id="logSection" class="hidden">
+    <div class="sec-label">
+      <span>AGENT LOG</span>
+      <span></span>
+    </div>
+    <div class="log-box" id="logBox"></div>
+  </div>
+
+  <!-- ── How it works ──────────────────────────────────────── -->
+
+  <div class="sec-label">
+    <span>HOW IT WORKS</span>
+    <span></span>
+  </div>
+  <div class="how-box">
+    <div class="how-item">
+      <span class="how-icon">🔍</span>
+      <div>
+        <div class="how-title">Free Discovery</div>
+        <div class="how-desc">GET /api/agent/markets returns all open markets. No payment, no auth.</div>
+      </div>
+    </div>
+    <div class="how-item">
+      <span class="how-icon">💳</span>
+      <div>
+        <div class="how-title">x402 Protocol</div>
+        <div class="how-desc">POST /api/agent/predict → HTTP 402 with Stellar USDC payment requirements baked in.</div>
+      </div>
+    </div>
+    <div class="how-item">
+      <span class="how-icon">✍️</span>
+      <div>
+        <div class="how-title">Sign & Retry</div>
+        <div class="how-desc">Agent signs payment with @x402/stellar, retries with X-Payment header. Receipt is the credential.</div>
+      </div>
+    </div>
+    <div class="how-item">
+      <span class="how-icon">⭐</span>
+      <div>
+        <div class="how-title">Stellar Rails</div>
+        <div class="how-desc">$0.00001 fees. Native USDC. 5s finality. Fees fully sponsored on testnet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bottom nav ────────────────────────────────────────── -->
+
+  <div class="bottom-nav">
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">MARKETS</span>
+    </a>
+    <a class="nav-item" href="index.html#crypto">
+      <span class="nav-icon">₿</span>
+      <span class="nav-label">CRYPTO</span>
+    </a>
+    <a class="nav-item" href="index.html#forex">
+      <span class="nav-icon">💱</span>
+      <span class="nav-label">FOREX</span>
+    </a>
+    <a class="nav-item" href="index.html#football">
+      <span class="nav-icon">⚽</span>
+      <span class="nav-label">FOOTBALL</span>
+    </a>
+    <a class="nav-item active" href="agent.html">
+      <span class="nav-icon">🔮</span>
+      <span class="nav-label">AGENT</span>
+    </a>
+    <a class="nav-item" href="index.html#bets">
+      <span class="nav-icon">🎯</span>
+      <span class="nav-label">MY BETS</span>
+    </a>
+  </div>
+
+</div><!-- .app -->
+
+<script>
+// ── Market data ──────────────────────────────────────────────────────────────
+const MARKETS = [
+  {
+    id: 'btc-100k-jun2026',
+    title: 'Will BTC hit $100,000 before end of June 2026?',
+    category: 'CRYPTO', emoji: '🌕',
+    yesOdds: 0.64, noOdds: 0.36,
+    pool: '$9.2M', ends: 'Jun 30, 2026',
+  },
+  {
+    id: 'eth-4k-jul2026',
+    title: 'Will ETH surpass $4,000 before July 2026?',
+    category: 'CRYPTO', emoji: '💎',
+    yesOdds: 0.52, noOdds: 0.48,
+    pool: '$4.8M', ends: 'Jul 1, 2026',
+  },
+  {
+    id: 'xlm-top10-2026',
+    title: 'Will XLM enter top 10 by market cap in 2026?',
+    category: 'CRYPTO', emoji: '⭐',
+    yesOdds: 0.28, noOdds: 0.72,
+    pool: '$310K', ends: 'Dec 31, 2026',
+  },
+  {
+    id: 'us-recession-2026',
+    title: 'Will the US enter a recession in 2026?',
+    category: 'WORLD', emoji: '🌍',
+    yesOdds: 0.45, noOdds: 0.55,
+    pool: '$4.9M', ends: 'Dec 31, 2026',
+  },
+  {
+    id: 'agi-claim-2027',
+    title: 'Will any lab claim AGI before 2027?',
+    category: 'WORLD', emoji: '🤖',
+    yesOdds: 0.34, noOdds: 0.66,
+    pool: '$2.1M', ends: 'Dec 31, 2026',
+  },
+];
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+let logBox = null;
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function addLog(msg, type = '') {
+  const section = document.getElementById('logSection');
+  section.classList.remove('hidden');
+  if (!logBox) logBox = document.getElementById('logBox');
+  const t = new Date().toLocaleTimeString();
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="log-time">[${t}]</span><span class="log-msg ${type}">${msg}</span>`;
+  logBox.appendChild(line);
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function setStep(n) {
+  for (let i = 0; i < 6; i++) {
+    const row = document.getElementById(`step-${i}`);
+    const circle = row.querySelector('.step-circle');
+    row.className = 'step-row ' + (i < n ? 'done' : i === n ? 'active' : 'inactive');
+    if (i < n) {
+      circle.textContent = '✓';
+    } else {
+      const icons = ['🔍','🤖','📡','💳','✍️','✅'];
+      circle.textContent = icons[i];
+    }
+  }
+}
+
+function renderMarkets(chosenId) {
+  const list = document.getElementById('marketsList');
+  list.innerHTML = '';
+  MARKETS.forEach(m => {
+    const isChosen = m.id === chosenId;
+    const catClass = m.category === 'CRYPTO' ? 'cat-crypto' : 'cat-world';
+    const oddsClass = m.yesOdds >= 0.5 ? 'odds-green' : 'odds-amber';
+    const yPct = Math.round(m.yesOdds * 100);
+    const nPct = 100 - yPct;
+    list.innerHTML += `
+      <div class="market-card ${isChosen ? 'chosen' : ''}">
+        <div class="card-top">
+          <div class="card-icon">${m.emoji}</div>
+          <div class="card-body">
+            <div class="card-cat-row">
+              <span class="cat-label ${catClass}">${m.category}</span>
+              ${isChosen ? '<span class="agent-pick">AGENT PICK</span>' : ''}
+            </div>
+            <div class="card-title-row">
+              <span class="card-title">${m.title}</span>
+              <span class="odds-badge ${oddsClass}">${yPct}%</span>
+            </div>
+            <div class="card-meta">
+              <span>🏦 ${m.pool}</span>
+              <span>·</span>
+              <span>⏱ Ends ${m.ends}</span>
+            </div>
+            <div class="progress-labels">
+              <span class="yes-label">YES ${yPct}¢</span>
+              <span class="no-label">NO ${nPct}¢</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${yPct}%"></div>
+            </div>
+            <div class="card-btns">
+              <div class="btn-yes">
+                <div class="btn-label">BUY YES</div>
+                <div class="btn-price">${yPct}¢</div>
+              </div>
+              <div class="btn-no">
+                <div class="btn-label">BUY NO</div>
+                <div class="btn-price">${nPct}¢</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+// ── Main agent flow ───────────────────────────────────────────────────────────
+async function runAgent() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Agent Running...';
+
+  // Reset UI
+  ['marketsSection','decisionBox','challengeBox','resultBox','errorBox','logSection']
+    .forEach(id => document.getElementById(id).classList.add('hidden'));
+  document.getElementById('logBox') && (document.getElementById('logBox').innerHTML = '');
+  logBox = null;
+  setStep(-1);
+
+  try {
+    // ── Step 0: Discover ────────────────────────────────────────
+    setStep(0);
+    addLog('Fetching open markets from /api/agent/markets...', 'info');
+    await wait(700);
+
+    document.getElementById('marketsSection').classList.remove('hidden');
+    document.getElementById('marketCount').textContent = `${MARKETS.length} markets · free`;
+    renderMarkets(null);
+    addLog(`Found ${MARKETS.length} markets — protocol: x402 v2 · network: stellar:testnet`);
+    await wait(800);
+
+    // ── Step 1: Decide ──────────────────────────────────────────
+    setStep(1);
+    const best = MARKETS.reduce((b, m) =>
+      Math.abs(m.yesOdds - 0.5) > Math.abs(b.yesOdds - 0.5) ? m : b);
+    const outcome    = best.yesOdds > best.noOdds ? 'YES' : 'NO';
+    const confidence = Math.round(Math.max(best.yesOdds, best.noOdds) * 100);
+
+    addLog(`Agent selects: "${best.id}"`, 'info');
+    addLog(`Decision: ${outcome} — confidence ${confidence}% (strongest odds spread)`);
+    await wait(900);
+
+    // Show markets with chosen highlighted
+    renderMarkets(best.id);
+
+    // Show decision box
+    const dec = document.getElementById('decisionBox');
+    dec.classList.remove('hidden');
+    document.getElementById('d-market').textContent = best.id;
+    document.getElementById('d-outcome').textContent = outcome;
+    document.getElementById('d-outcome').className = 'dc-value ' + (outcome === 'YES' ? 'val-green' : 'val-red');
+    document.getElementById('d-conf').textContent = confidence + '%';
+    await wait(700);
+
+    // ── Step 2: Request ─────────────────────────────────────────
+    setStep(2);
+    addLog('POST /api/agent/predict — no X-Payment header...', 'info');
+    await wait(900);
+
+    // ── Step 3: 402 ─────────────────────────────────────────────
+    setStep(3);
+    const mockPayTo = 'GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    addLog('← HTTP 402 received', 'warn');
+    addLog('  network: stellar:testnet');
+    addLog('  amount: 100000 units ($0.01 USDC)');
+    addLog('  feesSponsored: true');
+
+    const chal = document.getElementById('challengeBox');
+    chal.classList.remove('hidden');
+    document.getElementById('c-payTo').textContent = mockPayTo.slice(0, 18) + '...';
+    await wait(1100);
+
+    // ── Step 4: Sign ────────────────────────────────────────────
+    setStep(4);
+    addLog('Signing x402 payment with @x402/stellar...', 'info');
+    addLog('  signPaymentRequirement(keypair, requirements, Networks.TESTNET)');
+    await wait(1200);
+    addLog('Payment signed successfully ✓', 'success');
+    await wait(500);
+
+    // ── Step 5: Confirm ─────────────────────────────────────────
+    setStep(5);
+    addLog('POST /api/agent/predict — with X-Payment header...', 'info');
+    await wait(800);
+
+    const txHash = 'DEMO' + Math.random().toString(36).slice(2, 18).toUpperCase();
+    const predId = 'pred_' + Date.now();
+
+    const res = document.getElementById('resultBox');
+    res.classList.remove('hidden');
+    document.getElementById('r-id').textContent      = predId;
+    document.getElementById('r-market').textContent  = best.id;
+    document.getElementById('r-outcome').textContent = outcome;
+    document.getElementById('r-outcome').className   = 'payload-val ' + (outcome === 'YES' ? 'val-green' : 'val-red');
+    document.getElementById('r-tx').textContent      = txHash.slice(0, 20) + '...';
+
+    addLog('← HTTP 200 — prediction confirmed ✓', 'success');
+    addLog(`txHash: ${txHash}`, 'success');
+    addLog('Agent completed full x402 cycle autonomously.', 'success');
+    addLog('For real Stellar txs: node scripts/agent.mjs');
+
+  } catch (e) {
+    const eb = document.getElementById('errorBox');
+    eb.classList.remove('hidden');
+    eb.textContent = '❌ ' + e.message;
+    addLog('ERROR: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '↺&nbsp; Run Again';
+  }
+}
+</script>
+
+</body>
+</html>
